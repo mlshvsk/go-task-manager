@@ -1,0 +1,47 @@
+version: '3.1'
+
+services:
+
+  app_api:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: app_api
+    working_dir: /go/src/github.com/mlshvsk/go-task-manager
+    command: /bin/sh -c "go run *.go"
+    depends_on:
+      - app_mysql
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/go/src/github.com/mlshvsk/go-task-manager
+      - app_api_src_data:/go/src
+    networks:
+      - app_network
+    environment:
+      - GOPATH=/go
+
+  app_mysql:
+    image: mysql
+    container_name: app_mysql
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: "password"
+      MYSQL_DATABASE: "app"
+      MYSQL_USER: "app"
+      MYSQL_PASSWORD: "password"
+    volumes:
+      - app_mysql_data:/var/lib/mysql
+    networks:
+      - app_network
+
+volumes:
+  app_mysql_data:
+    driver: local
+  app_api_src_data:
+    driver: local
+
+networks:
+  app_network:
+    driver: bridge
