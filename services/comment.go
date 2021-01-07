@@ -1,7 +1,7 @@
 package services
 
 import (
-	"fmt"
+	"github.com/mlshvsk/go-task-manager/factories"
 	"github.com/mlshvsk/go-task-manager/models"
 	"github.com/mlshvsk/go-task-manager/repositories"
 )
@@ -9,26 +9,40 @@ import (
 type CommentService struct {
 }
 
-func GetComments(taskId int) []*models.Comment {
-	res, _ := repositories.CommentRepository.FindAll(taskId)
-	return res
+func GetCommentsByTask(taskId int64) ([]*models.Comment, error) {
+	return repositories.CommentRepository.FindAllByTask(taskId)
 }
 
-func GetComment(commentId int) *models.Comment {
-	res, _ := repositories.CommentRepository.Find(commentId)
-	return res
+func GetComment(commentId int64) (*models.Comment, error) {
+	return repositories.CommentRepository.Find(commentId)
 }
 
-func StoreComment(c *models.Comment) *models.Comment {
-	err := repositories.CommentRepository.Create(c)
-
+func StoreComment(c *models.Comment) error {
+	var err error
+	*c, err = factories.CommentFactory(c.TaskId, c.Data)
 	if err != nil {
-		fmt.Println(err.Error())
+		return err
 	}
 
-	return c
+	return repositories.CommentRepository.Create(c)
 }
 
-func DeleteComment(commentId int) {
-	repositories.CommentRepository.Delete(commentId)
+func UpdateComment(c *models.Comment) error {
+	commentFromDB, err := repositories.CommentRepository.Find(c.Id)
+	if err != nil {
+		return err
+	}
+
+	c.TaskId = commentFromDB.TaskId
+	c.CreatedAt = commentFromDB.CreatedAt
+	return repositories.CommentRepository.Update(c)
+}
+
+func DeleteComment(commentId int64) error {
+	_, err := repositories.CommentRepository.Find(commentId)
+	if err != nil {
+		return err
+	}
+
+	return repositories.CommentRepository.Delete(commentId)
 }

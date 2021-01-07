@@ -2,7 +2,8 @@ package services
 
 import (
 	"errors"
-	"fmt"
+	customErrors "github.com/mlshvsk/go-task-manager/errors"
+	"github.com/mlshvsk/go-task-manager/factories"
 	"github.com/mlshvsk/go-task-manager/models"
 	"github.com/mlshvsk/go-task-manager/repositories"
 )
@@ -10,76 +11,119 @@ import (
 type ColumnService struct {
 }
 
-func GetColumns(projectId int) []*models.Column {
-	res, _ := repositories.ColumnRepository.FindAll(projectId)
-	return res
+func GetColumns(projectId int64) ([]*models.Column, error) {
+	return repositories.ColumnRepository.FindAllByProject(projectId)
 }
 
-func GetColumn(projectId int) *models.Column {
-	res, _ := repositories.ColumnRepository.Find(projectId)
-	return res
+func GetColumn(columnId int64) (*models.Column, error) {
+	return repositories.ColumnRepository.Find(columnId)
 }
 
-func StoreColumn(c *models.Column) *models.Column {
-	prevCol, _ := repositories.ColumnRepository.FindWithMaxPosition(c.ProjectId)
-	c.Position = prevCol.Position + 1
-	_ = repositories.ColumnRepository.Create(c)
-
-	return c
-}
-
-func UpdateColumn(c *models.Column) *models.Column {
-	err := repositories.ProjectRepository.Update(c.Id, map[string]interface{}{"name": c.Name})
-
+func StoreColumn(c *models.Column) error {
+	columns, err := repositories.ColumnRepository.FindAllByProjectAndName(c.ProjectId, c.Name)
 	if err != nil {
-		fmt.Println(err.Error())
+		return err
+	}
+	if columns != nil && len(columns) > 0 {
+		return &customErrors.ModelAlreadyExists{}
 	}
 
-	return c
+	prevCol, err := repositories.ColumnRepository.FindWithMaxPosition(c.ProjectId)
+	if err != nil {
+		return err
+	} else if prevCol == nil {
+		c.Position = 0
+	} else {
+		c.Position = prevCol.Position + 1
+	}
+
+	*c, err = factories.ColumnFactory(c.ProjectId, c.Name, c.Position)
+	if err != nil {
+		return err
+	}
+
+	return repositories.ColumnRepository.Create(c)
 }
 
-func DeleteColumn(columnId int, projectId int) error {
-	res, _ := repositories.ColumnRepository.FindAll(projectId)
+func UpdateColumn(c *models.Column) error {
+	columnFromDB, err := repositories.ColumnRepository.Find(c.Id)
+	if err != nil {
+		return err
+	}
 
-	if res == nil || len(res) <= 1 {
+	c.ProjectId = columnFromDB.ProjectId
+	c.Position = columnFromDB.Position
+	c.CreatedAt = columnFromDB.CreatedAt
+	return repositories.ColumnRepository.Update(c)
+}
+
+func DeleteColumn(columnId int64) error {
+	column, err := repositories.ColumnRepository.Find(columnId)
+	if err != nil {
+		return err
+	}
+
+	columns, err := repositories.ColumnRepository.FindAllByProject(column.ProjectId)
+	if err != nil {
+		return err
+	} else if columns == nil || len(columns) <= 1 {
 		return errors.New("cannot delete last column")
 	}
 
-	repositories.ColumnRepository.Delete(columnId)
+	//TODO: rewrite it, its bullshit
+	nextColumn, err := repositories.ColumnRepository.FindByNextPosition(column.ProjectId, column.Position)
+	if err != nil {
+		return err
+	} else if nextColumn == nil {
+		nextColumn, err = repositories.ColumnRepository.FindByPreviousPosition(column.ProjectId, column.Position)
+		if err != nil {
+			return err
+		} else if nextColumn == nil {
+			return errors.New("cannot find column to move tasks before deletion")
+		}
+	}
 
-	return nil
+	if err := moveAllToColumn(column, nextColumn); err != nil {
+		return err
+	}
+
+	return repositories.ColumnRepository.Delete(columnId)
 }
 
-func MoveColumn(columnId int, projectId int, direction string) error {
-	res, _ := repositories.ColumnRepository.Find(columnId)
+func MoveColumn(columnId int64, direction string) error {
+	nextColumn := new(models.Column)
+	column, err := repositories.ColumnRepository.Find(columnId)
+	if err != nil {
+		return err
+	}
 
 	if direction == "right" {
-		nextCol, _ := repositories.ColumnRepository.FindByNextPosition(projectId, res.Position)
-
-		if nextCol == nil {
+		nextColumn, err = repositories.ColumnRepository.FindByNextPosition(column.ProjectId, column.Position)
+		if err != nil {
+			return err
+		} else if nextColumn == nil {
 			return nil
 		}
 
-		nextCol.Position--
-		res.Position++
-
-		repositories.ColumnRepository.Update(nextCol)
-		repositories.ColumnRepository.Update(res)
-	}
-
-	if direction == "left" {
-		nextCol, _ := repositories.ColumnRepository.FindByPreviousPosition(projectId, res.Position)
-
-		if nextCol == nil {
+		nextColumn.Position--
+		column.Position++
+	} else if direction == "left" {
+		nextColumn, err = repositories.ColumnRepository.FindByPreviousPosition(column.ProjectId, column.Position)
+		if err != nil {
+			return err
+		} else if nextColumn == nil {
 			return nil
 		}
 
-		nextCol.Position++
-		res.Position--
-
-		repositories.ColumnRepository.Update(nextCol)
-		repositories.ColumnRepository.Update(res)
+		nextColumn.Position++
+		column.Position--
+	} else {
+		return errors.New("invalid direction: " + direction)
 	}
 
-	return nil
+	if err := repositories.ColumnRepository.Update(nextColumn); err != nil {
+		return err
+	}
+
+	return repositories.ColumnRepository.Update(column)
 }

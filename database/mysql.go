@@ -9,11 +9,11 @@ import (
 	"github.com/mlshvsk/go-task-manager/config"
 )
 
-type Sqldb struct {
+type SqlDB struct {
 	Conn *sql.DB
 }
 
-func Load(dbCfg config.SqlConfig) (*Sqldb, error) {
+func Load(dbCfg config.SqlConfig) (*SqlDB, error) {
 	dataSourceName := fmt.Sprintf("%s:%s@(%s:%s)/%s?charset=%s&parseTime=true",
 		dbCfg.Username,
 		dbCfg.Password,
@@ -28,5 +28,5 @@ func Load(dbCfg config.SqlConfig) (*Sqldb, error) {
 		log.Fatal(err.Error())
 	}
 
-	return &Sqldb{db}, nil
+	return &SqlDB{db}, nil
 }

@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func ColumnFactory(projectId int, name string, position int) (*models.Column, error) {
+func ColumnFactory(projectId int64, name string, position int64) (models.Column, error) {
 	c := new(models.Column)
 
 	c.ProjectId = projectId
@@ -13,5 +13,5 @@ func ColumnFactory(projectId int, name string, position int) (*models.Column, er
 	c.CreatedAt = time.Now()
 	c.Position = position
 
-	return c, nil
+	return *c, nil
 }

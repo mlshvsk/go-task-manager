@@ -1,7 +1,7 @@
 package services
 
 import (
-	"fmt"
+	errors2 "github.com/mlshvsk/go-task-manager/errors"
 	"github.com/mlshvsk/go-task-manager/factories"
 	"github.com/mlshvsk/go-task-manager/models"
 	"github.com/mlshvsk/go-task-manager/repositories"
@@ -14,30 +14,51 @@ func GetProjects() ([]*models.Project, error) {
 	return repositories.ProjectRepository.FindAll()
 }
 
-func GetProject(id int) (*models.Project, error) {
+func GetProject(id int64) (*models.Project, error) {
 	return repositories.ProjectRepository.Find(id)
 }
 
-func StoreProject(p *models.Project) *models.Project {
-	_ = repositories.ProjectRepository.Create(p)
-
-	c, _ := factories.ColumnFactory(p.Id, "New", 0)
-	fmt.Println(c)
-	_ = repositories.ColumnRepository.Create(c)
-
-	return p
-}
-
-func UpdateProject(p *models.Project) *models.Project {
-	err := repositories.ProjectRepository.Update(p.Id, map[string]interface{}{"name": p.Name, "description": p.Description})
-
+func StoreProject(p *models.Project) error {
+	projects, err := repositories.ProjectRepository.FindAllByName(p.Name)
 	if err != nil {
-		fmt.Println(err.Error())
+		return err
+	}
+	if projects != nil && len(projects) > 0 {
+		return &errors2.ModelAlreadyExists{}
 	}
 
-	return p
+	*p, err = factories.ProjectFactory(p.Name, p.Description)
+	if err != nil {
+		return err
+	}
+
+	if err := repositories.ProjectRepository.Create(p); err != nil {
+		return err
+	}
+
+	column, err := factories.ColumnFactory(p.Id, "New", 0)
+	if err != nil {
+		return err
+	}
+
+	return repositories.ColumnRepository.Create(&column)
 }
 
-func DeleteProject(id int) {
-	repositories.ProjectRepository.Delete(id)
+func UpdateProject(p *models.Project) error {
+	projectFromDB, err := repositories.ProjectRepository.Find(p.Id)
+	if err != nil {
+		return err
+	}
+
+	p.CreatedAt = projectFromDB.CreatedAt
+
+	return repositories.ProjectRepository.Update(p)
+}
+
+func DeleteProject(id int64) error {
+	if _, err := repositories.ProjectRepository.Find(id); err != nil {
+		return err
+	}
+
+	return repositories.ProjectRepository.Delete(id)
 }

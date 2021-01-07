@@ -5,12 +5,12 @@ import (
 	"time"
 )
 
-func ProjectFactory(name string, description string) (*models.Project, error) {
+func ProjectFactory(name string, description string) (models.Project, error) {
 	p := new(models.Project)
 
 	p.Name = name
 	p.Description = description
 	p.CreatedAt = time.Now()
 
-	return p, nil
+	return *p, nil
 }

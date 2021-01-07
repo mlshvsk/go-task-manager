@@ -14,7 +14,7 @@ import (
 
 type App struct {
 	Config   config.Config
-	Database *database.Sqldb
+	Database *database.SqlDB
 }
 
 func New(cfg config.Config) *App {

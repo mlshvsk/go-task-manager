@@ -1,29 +1,30 @@
-package repositories
+package mysql
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
+	errors2 "github.com/mlshvsk/go-task-manager/errors"
 	"strings"
 )
 
 type Query struct {
 	main string
-	query string
 	orderBy string
 	where string
 	values []interface{}
-	r *mysqlRepository
-	errors []error
+	r *Repository
+	error error
 }
 
 func (q *Query) Select(columns []string) *Query {
-	q.main = fmt.Sprintf("SELECT %v FROM %v ", strings.Join(columns, ", "), q.r.tableName)
+	q.main = fmt.Sprintf("SELECT %v FROM %v ", strings.Join(columns, ", "), q.r.TableName)
 
 	return q
 }
 
 func (q *Query) Delete() *Query {
-	q.main = fmt.Sprintf("DELETE FROM %v ", q.r.tableName)
+	q.main = fmt.Sprintf("DELETE FROM %v ", q.r.TableName)
 
 	return q
 }
@@ -39,7 +40,7 @@ func (q *Query) Update(data map[string]interface{}) *Query {
 
 	fieldPlaceholders = strings.Join(pl, ", ")
 
-	q.main = fmt.Sprintf("UPDATE %v SET %v", q.r.tableName, fieldPlaceholders)
+	q.main = fmt.Sprintf("UPDATE %v SET %v", q.r.TableName, fieldPlaceholders)
 
 	return q
 }
@@ -53,13 +54,14 @@ func (q *Query) Insert(data map[string]interface{}) *Query {
 	for i, v := range data {
 		fn = append(fn, i)
 		pl = append(pl, "?")
-		q.values = append(values, v)
+		values = append(values, v)
 	}
 
 	placeholders = strings.Join(pl, ", ")
 	fieldNames = strings.Join(fn, ", ")
 
-	q.main = fmt.Sprintf("INSERT INTO %v (%v) VALUES (%v)", q.r.tableName, fieldNames, placeholders)
+	q.main = fmt.Sprintf("INSERT INTO %v (%v) VALUES (%v)", q.r.TableName, fieldNames, placeholders)
+	q.values = values
 
 	return q
 }
@@ -74,8 +76,22 @@ func (q *Query) Where(logicalOperator string, data [][]interface{}) *Query {
 	var placeholders []string
 
 	for _, v := range data {
-		col, _ := v[0].(string)
-		operator, _ := v[1].(string)
+		if len(v) != 3 {
+			q.error = errors.New("where: array len of where clause must be equal to 3")
+			return q
+		}
+
+		col, ok := v[0].(string)
+		if ok == false {
+			q.error = errors.New("where: cannot convert column name to string")
+			return q
+		}
+
+		operator, ok := v[1].(string)
+		if ok == false {
+			q.error = errors.New("where: cannot convert operator to string")
+			return q
+		}
 
 		placeholders = append(placeholders, col + operator + "?")
 		q.values = append(q.values, v[2])
@@ -87,17 +103,35 @@ func (q *Query) Where(logicalOperator string, data [][]interface{}) *Query {
 }
 
 func (q *Query) Get(callback func(rows *sql.Rows) error) error {
-	rows, err := q.r.Conn.Query(q.main + q.where + q.orderBy, q.values...)
+	if q.error != nil {
+		return &errors2.QueryError{Err: q.error}
+	}
+
+	rows, err := q.r.Conn.Query(q.compoundQuery(), q.values...)
 
 	if err != nil {
-		return err
+		return &errors2.ExecError{Value: err.Error(), Query: q.compoundQuery()}
 	}
 
 	return callback(rows)
 }
 
 func (q *Query) Exec() (sql.Result, error) {
-	return q.r.Conn.Exec(q.query, q.values...)
+	if q.error != nil {
+		return nil, &errors2.QueryError{Err: q.error}
+	}
+
+	res, err := q.r.Conn.Exec(q.compoundQuery(), q.values...)
+
+	if err != nil {
+		err = &errors2.ExecError{Value: err.Error(), Query: q.compoundQuery()}
+	}
+
+	return res, err
+}
+
+func (q *Query) compoundQuery() string {
+	return q.main + q.where + q.orderBy
 }
 
 

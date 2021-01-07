@@ -2,25 +2,35 @@ package repositories
 
 import (
 	"database/sql"
-	"fmt"
 	"github.com/mlshvsk/go-task-manager/database"
+	customErrors "github.com/mlshvsk/go-task-manager/errors"
 	"github.com/mlshvsk/go-task-manager/models"
+	"github.com/mlshvsk/go-task-manager/repositories/mysql"
 )
 
 type taskRepository struct {
-	mysqlRepository
+	mysql.Repository
 }
 
-var TaskRepository *taskRepository
+var (
+	TaskRepository *taskRepository
+)
 
-func InitTaskRepository(db *database.Sqldb) {
-	TaskRepository = &taskRepository{mysqlRepository{db, "tasks", models.Task{}}}
+func InitTaskRepository(db *database.SqlDB) {
+	TaskRepository = &taskRepository{
+		Repository: mysql.Repository{
+			SqlDB: db,
+			TableName: "tasks",
+		},
+	}
 }
 
-func (tr *taskRepository) FindAll(columnId int) ([]*models.Task, error) {
+func (tr *taskRepository) FindAll() ([]*models.Task, error) {
 	tasks := make([]*models.Task, 0)
-
-	err := tr.mysqlRepository.FindAllWhere([][]interface{}{{"column_id", "=", columnId}}).Get(tr.Scan(&tasks))
+	err := tr.Repository.
+		FindAll().
+		OrderBy("position", "asc").
+		Get(tr.scan(&tasks))
 
 	if err != nil {
 		return nil, err
@@ -29,27 +39,58 @@ func (tr *taskRepository) FindAll(columnId int) ([]*models.Task, error) {
 	return tasks, nil
 }
 
-func (tr *taskRepository) Find(id int) (*models.Task, error) {
+func (tr *taskRepository) FindAllByColumn(columnId int64) ([]*models.Task, error) {
 	tasks := make([]*models.Task, 0)
-	err := tr.mysqlRepository.Find(id).Get(tr.Scan(&tasks))
+	err := tr.Repository.
+		FindAll().
+		Where("and", [][]interface{}{{"column_id", "=", columnId}}).
+		Get(tr.scan(&tasks))
 
 	if err != nil {
-		fmt.Printf("Error retrieving all projects: %v", err.Error())
 		return nil, err
+	}
+
+	return tasks, nil
+}
+
+func (tr *taskRepository) FindAllByColumnAndName(columnId int64, name string) ([]*models.Task, error) {
+	tasks := make([]*models.Task, 0)
+	err := tr.Repository.
+		FindAll().
+		Where("and", [][]interface{}{{"column_id", "=", columnId}, {"name", "=", name}}).
+		Get(tr.scan(&tasks))
+
+	if err != nil {
+		return nil, err
+	}
+
+	return tasks, nil
+}
+
+func (tr *taskRepository) Find(id int64) (*models.Task, error) {
+	tasks := make([]*models.Task, 0)
+	err := tr.Repository.Find(id).Get(tr.scan(&tasks))
+
+	if err != nil {
+		return nil, err
+	}
+
+	if tasks == nil || len(tasks) == 0 {
+		return nil, &customErrors.NotFoundError{Value: "task not found"}
 	}
 
 	return tasks[0], nil
 }
 
-func (tr *taskRepository) FindByNextPosition(columnId int, position int) (*models.Task, error) {
-	tasks := make([]*models.Task, 0)
-	err := tr.mysqlRepository.
-		FindAllWhere([][]interface{}{{"column_id", "=", columnId}, {"position", ">", position}}).
-		OrderBy("position", "asc").
-		Get(tr.Scan(&tasks))
+func (tr *taskRepository) FindWithMaxPosition(columnId int64) (*models.Task, error) {
+	var tasks = make([]*models.Task, 0)
+	err := tr.Repository.
+		FindAll().
+		Where("and", [][]interface{}{{"column_id", "=", columnId}}).
+		OrderBy("position", "desc").
+		Get(tr.scan(&tasks))
 
 	if err != nil {
-		fmt.Printf("Error retrieving all columns: %v", err.Error())
 		return nil, err
 	}
 
@@ -60,15 +101,32 @@ func (tr *taskRepository) FindByNextPosition(columnId int, position int) (*model
 	return tasks[0], nil
 }
 
-func (tr *taskRepository) FindByPreviousPosition(columnId int, position int) (*models.Task, error) {
+func (tr *taskRepository) FindByNextPosition(columnId int64, position int64) (*models.Task, error) {
 	tasks := make([]*models.Task, 0)
-	err := tr.mysqlRepository.
-		FindAllWhere([][]interface{}{{"column_id", "=", columnId}, {"position", "<", position}}).
-		OrderBy("position", "desc").
-		Get(tr.Scan(&tasks))
+	err := tr.Repository.
+		FindAll().Where("and", [][]interface{}{{"column_id", "=", columnId}, {"position", ">", position}}).
+		OrderBy("position", "asc").
+		Get(tr.scan(&tasks))
 
 	if err != nil {
-		fmt.Printf("Error retrieving all columns: %v", err.Error())
+		return nil, err
+	}
+
+	if tasks == nil || len(tasks) == 0 {
+		return nil, nil
+	}
+
+	return tasks[0], nil
+}
+
+func (tr *taskRepository) FindByPreviousPosition(columnId int64, position int64) (*models.Task, error) {
+	tasks := make([]*models.Task, 0)
+	err := tr.Repository.
+		FindAll().Where("and", [][]interface{}{{"column_id", "=", columnId}, {"position", "<", position}}).
+		OrderBy("position", "desc").
+		Get(tr.scan(&tasks))
+
+	if err != nil {
 		return nil, err
 	}
 
@@ -80,7 +138,12 @@ func (tr *taskRepository) FindByPreviousPosition(columnId int, position int) (*m
 }
 
 func (tr *taskRepository) Create(t *models.Task) error {
-	id, err := tr.mysqlRepository.Create(map[string]interface{}{"name": &t.Name, "description": &t.Description, "column_id": &t.ColumnId})
+	id, err := tr.Repository.Create(map[string]interface{}{
+		"name": t.Name,
+		"description": t.Description,
+		"column_id": t.ColumnId,
+		"position": t.Position,
+	})
 
 	if err != nil {
 		return err
@@ -91,17 +154,21 @@ func (tr *taskRepository) Create(t *models.Task) error {
 }
 
 func (tr *taskRepository) Update(t *models.Task) error {
-	err := tr.mysqlRepository.Update(t.Id, map[string]interface{}{"name": &t.Name, "description": &t.Description, "column_id": &t.ColumnId, "position": &t.Position})
+	err := tr.Repository.Update(t.Id, map[string]interface{}{
+		"name": &t.Name,
+		"description": &t.Description,
+		"column_id": &t.ColumnId,
+		"position": &t.Position,
+	})
 
 	if err != nil {
-		fmt.Println(err.Error())
 		return err
 	}
 
 	return nil
 }
 
-func (tr *taskRepository) Scan(tasks *[]*models.Task) func(rows *sql.Rows) error {
+func (tr *taskRepository) scan(tasks *[]*models.Task) func(rows *sql.Rows) error {
 	return func(rows *sql.Rows) error {
 		for rows.Next() {
 			task := new(models.Task)

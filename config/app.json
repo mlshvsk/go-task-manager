@@ -8,14 +8,11 @@
     "encoding": "utf8mb4",
     "port": "3306"
   },
-  "redis": {
-    "host": "app_redis",
-    "port": 6379
+  "error_logger": {
+    "output_path": "logs/error.log"
   },
-  "jwt": {
-    "secret": "secret",
-    "public_key_path": "config/api.rsa.pub",
-    "private_key_path": "config/api.rsa"
+  "request_logger": {
+    "output_path": "logs/request.log"
   },
   "port": 8080
 }
