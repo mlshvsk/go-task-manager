@@ -1,6 +1,7 @@
 {
   "env": "local",
-  "mysql": {
+  "sql": {
+    "driver": "mysql",
     "host": "app_mysql",
     "username": "root",
     "password": "password",

@@ -37,7 +37,7 @@ func GetId(req *http.Request, idString string) (int64, error) {
 
 func EncodeResponse(rw http.ResponseWriter, res interface{}) *handlers.AppError {
 	if err := json.NewEncoder(rw).Encode(res); err != nil {
-		return &handlers.AppError{Error: err, Code: http.StatusInternalServerError}
+		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
 	return nil
@@ -46,15 +46,15 @@ func EncodeResponse(rw http.ResponseWriter, res interface{}) *handlers.AppError 
 func RetrieveModel(reqBody io.ReadCloser, model interface{}) *handlers.AppError {
 	requestBody, err := RequestBody(reqBody)
 	if err != nil {
-		return &handlers.AppError{Error: err, Code: http.StatusInternalServerError}
+		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
 	if err := json.Unmarshal(requestBody, &model); err != nil {
-		return &handlers.AppError{Error: err, Code: http.StatusInternalServerError}
+		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
 	if err := validator.New().Struct(model); err != nil {
-		return &handlers.AppError{Error: err, Message: err.Error(), Code: http.StatusBadRequest}
+		return &handlers.AppError{Error: err, Message: err.Error(), ResponseCode: http.StatusBadRequest}
 	}
 
 	return nil

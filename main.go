@@ -6,6 +6,8 @@ import (
 	"github.com/mlshvsk/go-task-manager/http/routes"
 	"github.com/mlshvsk/go-task-manager/logger"
 	"github.com/mlshvsk/go-task-manager/repositories"
+	"github.com/mlshvsk/go-task-manager/repositories/base"
+	"github.com/mlshvsk/go-task-manager/repositories/mysql"
 	"log"
 )
 
@@ -23,8 +25,17 @@ func main() {
 func initServices(a *app.App) {
 	logger.InitRequestLogger(a.Config)
 	logger.InitErrorLogger(a.Config)
-	repositories.InitCommentRepository(a.Database)
-	repositories.InitTaskRepository(a.Database)
-	repositories.InitColumnRepository(a.Database)
-	repositories.InitProjectRepository(a.Database)
+	repositories.InitCommentRepository(initBaseRepository(a))
+	repositories.InitTaskRepository(initBaseRepository(a))
+	repositories.InitColumnRepository(initBaseRepository(a))
+	repositories.InitProjectRepository(initBaseRepository(a))
+}
+
+func initBaseRepository(a *app.App) base.Repository {
+	switch a.Config.Sql.Driver {
+	case "mysql":
+		return &mysql.Repository{SqlDB: a.Database}
+	}
+
+	return nil
 }

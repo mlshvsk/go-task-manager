@@ -22,7 +22,7 @@ func Load(dbCfg config.SqlConfig) (*SqlDB, error) {
 		dbCfg.DatabaseName,
 		dbCfg.Encoding)
 
-	db, err := sql.Open("mysql", dataSourceName)
+	db, err := sql.Open(dbCfg.Driver, dataSourceName)
 
 	if err != nil {
 		log.Fatal(err.Error())

@@ -12,12 +12,12 @@ import (
 func IndexTasks(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 	columnId, err := helpers.GetId(req, "columnId")
 	if err != nil {
-		return &handlers.AppError{Error: err, Code: http.StatusInternalServerError}
+		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
 	tasks, err := services.GetTasksByColumn(columnId)
 	if err != nil {
-		return &handlers.AppError{Error: err, Code: http.StatusInternalServerError}
+		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
 	return helpers.EncodeResponse(rw, tasks)
@@ -26,21 +26,21 @@ func IndexTasks(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 func StoreTask(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 	columnId, err := helpers.GetId(req, "columnId")
 	if err != nil {
-		return &handlers.AppError{Error: err, Code: http.StatusInternalServerError}
+		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
 	var task models.Task
 	if er := helpers.RetrieveModel(req.Body, &task); er != nil {
 		if _, ok := err.(*customErrors.ModelAlreadyExists); ok == true {
-			return &handlers.AppError{Error: err, Message: "Model already exists", Code: http.StatusBadRequest}
+			return &handlers.AppError{Error: err, Message: "Model already exists", ResponseCode: http.StatusBadRequest}
 		}
 
-		return &handlers.AppError{Error: err, Code: http.StatusNotFound}
+		return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
 	}
 	task.ColumnId = columnId
 
 	if err := services.StoreTask(&task); err != nil {
-		return &handlers.AppError{Error: err, Code: http.StatusInternalServerError}
+		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
 	return helpers.EncodeResponse(rw, task)
@@ -49,16 +49,16 @@ func StoreTask(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 func ShowTask(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 	taskId, err := helpers.GetId(req, "taskId")
 	if err != nil {
-		return &handlers.AppError{Error: err, Code: http.StatusInternalServerError}
+		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
 	task, err := services.GetTask(taskId)
 	if err != nil {
 		if _, ok := err.(*customErrors.NotFoundError); ok == true {
-			return &handlers.AppError{Error: err, Code: http.StatusNotFound}
+			return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
 		}
 
-		return &handlers.AppError{Error: err, Code: http.StatusInternalServerError}
+		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
 	return helpers.EncodeResponse(rw, task)
@@ -68,19 +68,19 @@ func UpdateTask(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 	var task models.Task
 	id, err := helpers.GetId(req, "taskId")
 	if err != nil {
-		return &handlers.AppError{Error: err, Code: http.StatusInternalServerError}
+		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
 	if er := helpers.RetrieveModel(req.Body, &task); er != nil {
-		return &handlers.AppError{Error: err, Code: http.StatusNotFound}
+		return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
 	}
 	task.Id = id
 
 	if err := services.UpdateTask(&task); err != nil {
 		if _, ok := err.(*customErrors.NotFoundError); ok == true {
-			return &handlers.AppError{Error: err, Code: http.StatusNotFound}
+			return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
 		}
-		return &handlers.AppError{Error: err, Code: http.StatusInternalServerError}
+		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
 	return helpers.EncodeResponse(rw, task)
@@ -89,19 +89,19 @@ func UpdateTask(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 func MoveTask(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 	id, err := helpers.GetId(req, "taskId")
 	if err != nil {
-		return &handlers.AppError{Error: err, Code: http.StatusInternalServerError}
+		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
 	body := struct{Direction string `json:"direction"`}{}
 	if er := helpers.RetrieveModel(req.Body, &body); er != nil {
-		return &handlers.AppError{Error: err, Code: http.StatusNotFound}
+		return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
 	}
 
 	if err := services.MoveTaskWithinColumn(id, body.Direction); err != nil {
 		if _, ok := err.(*customErrors.NotFoundError); ok == true {
-			return &handlers.AppError{Error: err, Code: http.StatusNotFound}
+			return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
 		}
-		return &handlers.AppError{Error: err, Code: http.StatusInternalServerError}
+		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
 	return nil
@@ -110,19 +110,19 @@ func MoveTask(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 func MoveTaskColumn(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 	id, err := helpers.GetId(req, "taskId")
 	if err != nil {
-		return &handlers.AppError{Error: err, Code: http.StatusInternalServerError}
+		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
 	columnId, err := helpers.GetId(req, "newColumnId")
 	if err != nil {
-		return &handlers.AppError{Error: err, Code: http.StatusInternalServerError}
+		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
 	if err := services.MoveTaskToColumn(id, columnId); err != nil {
 		if _, ok := err.(*customErrors.NotFoundError); ok == true {
-			return &handlers.AppError{Error: err, Code: http.StatusNotFound}
+			return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
 		}
-		return &handlers.AppError{Error: err, Code: http.StatusInternalServerError}
+		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
 	return nil
@@ -131,11 +131,11 @@ func MoveTaskColumn(rw http.ResponseWriter, req *http.Request) *handlers.AppErro
 func DeleteTask(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 	id, err := helpers.GetId(req, "columnId")
 	if err != nil {
-		return &handlers.AppError{Error: err, Code: http.StatusInternalServerError}
+		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
 	if err := services.DeleteTask(id); err != nil {
-		return &handlers.AppError{Error: err, Code: http.StatusInternalServerError}
+		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
 	return nil

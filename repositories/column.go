@@ -3,30 +3,31 @@ package repositories
 import (
 	"database/sql"
 	"fmt"
-	"github.com/mlshvsk/go-task-manager/database"
 	customErrors "github.com/mlshvsk/go-task-manager/errors"
 	"github.com/mlshvsk/go-task-manager/models"
-	"github.com/mlshvsk/go-task-manager/repositories/mysql"
+	"github.com/mlshvsk/go-task-manager/repositories/base"
+	"sync"
 )
 
 type columnRepository struct {
-	mysql.Repository
+	base base.Repository
 }
 
 var ColumnRepository *columnRepository
 
-func InitColumnRepository(db *database.SqlDB) {
-	ColumnRepository = &columnRepository{
-		Repository: mysql.Repository{
-			SqlDB:     db,
-			TableName: "columns",
-		},
-	}
+func InitColumnRepository(baseRepo base.Repository) {
+	(&sync.Once{}).Do(func() {
+		ColumnRepository = &columnRepository{
+			base: baseRepo,
+		}
+
+		ColumnRepository.base.SetTableName("columns")
+	})
 }
 
 func (cr *columnRepository) FindAll() ([]*models.Column, error) {
 	var columns = make([]*models.Column, 0)
-	err := cr.Repository.
+	err := cr.base.
 		FindAll().
 		OrderBy("project_id", "asc").
 		Get(cr.scan(&columns))
@@ -40,7 +41,7 @@ func (cr *columnRepository) FindAll() ([]*models.Column, error) {
 
 func (cr *columnRepository) FindAllByProject(projectId int64) ([]*models.Column, error) {
 	var columns = make([]*models.Column, 0)
-	err := cr.Repository.
+	err := cr.base.
 		FindAll().
 		Where("and", [][]interface{}{{"project_id", "=", projectId}}).
 		OrderBy("position", "asc").
@@ -55,7 +56,7 @@ func (cr *columnRepository) FindAllByProject(projectId int64) ([]*models.Column,
 
 func (cr *columnRepository) FindAllByProjectAndName(projectId int64, name string) ([]*models.Column, error) {
 	var columns = make([]*models.Column, 0)
-	err := cr.Repository.
+	err := cr.base.
 		FindAll().
 		Where("and", [][]interface{}{{"project_id", "=", projectId}, {"name", "=", name}}).
 		OrderBy("position", "asc").
@@ -70,7 +71,7 @@ func (cr *columnRepository) FindAllByProjectAndName(projectId int64, name string
 
 func (cr *columnRepository) Find(id int64) (*models.Column, error) {
 	var columns = make([]*models.Column, 0)
-	err := cr.Repository.Find(id).Get(cr.scan(&columns))
+	err := cr.base.Find(id).Get(cr.scan(&columns))
 
 	if err != nil {
 		return nil, err
@@ -86,7 +87,7 @@ func (cr *columnRepository) Find(id int64) (*models.Column, error) {
 func (cr *columnRepository) FindByNextPosition(projectId int64, position int64) (*models.Column, error) {
 	var columns = make([]*models.Column, 0)
 
-	err := cr.Repository.
+	err := cr.base.
 		FindAll().
 		Where("and", [][]interface{}{{"project_id", "=", projectId}, {"position", ">", position}}).
 		OrderBy("position", "asc").
@@ -106,7 +107,7 @@ func (cr *columnRepository) FindByNextPosition(projectId int64, position int64) 
 func (cr *columnRepository) FindByPreviousPosition(projectId int64, position int64) (*models.Column, error) {
 	var columns = make([]*models.Column, 0)
 
-	err := cr.Repository.
+	err := cr.base.
 		FindAll().
 		Where("and", [][]interface{}{{"project_id", "=", projectId}, {"position", "<", position}}).
 		OrderBy("position", "desc").
@@ -125,7 +126,7 @@ func (cr *columnRepository) FindByPreviousPosition(projectId int64, position int
 
 func (cr *columnRepository) FindWithMaxPosition(projectId int64) (*models.Column, error) {
 	var columns = make([]*models.Column, 0)
-	err := cr.Repository.
+	err := cr.base.
 		FindAll().
 		Where("and", [][]interface{}{{"project_id", "=", projectId}}).
 		OrderBy("position", "desc").
@@ -145,7 +146,7 @@ func (cr *columnRepository) Create(c *models.Column) error {
 	data["position"] = &c.Position
 	data["created_at"] = &c.CreatedAt
 
-	id, err := cr.Repository.Create(data)
+	id, err := cr.base.Create(data)
 	c.Id = id
 
 	return err
@@ -157,9 +158,13 @@ func (cr *columnRepository) Update(c *models.Column) error {
 	data["project_id"] = &c.ProjectId
 	data["position"] = &c.Position
 
-	err := cr.Repository.Update(c.Id, data)
+	err := cr.base.Update(c.Id, data)
 
 	return err
+}
+
+func (cr *columnRepository) Delete(id int64) error {
+	return cr.base.Delete(id)
 }
 
 func (cr *columnRepository) scan(columns *[]*models.Column) func(rows *sql.Rows) error {

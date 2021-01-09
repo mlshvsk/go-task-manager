@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"github.com/mlshvsk/go-task-manager/logger"
 	"net/http"
 )
@@ -8,9 +9,9 @@ import (
 type Handler func(http.ResponseWriter, *http.Request) *AppError
 
 type AppError struct {
-	Error   error
-	Message string
-	Code    int
+	Error        error  `json:"-"`
+	Message      string `json:"message"`
+	ResponseCode int    `json:"-"`
 }
 
 func (fn Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -18,7 +19,7 @@ func (fn Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		logger.ErrorLogger.Error(e.Error.Error())
 
 		if e.Message == "" {
-			switch e.Code {
+			switch e.ResponseCode {
 			case http.StatusInternalServerError:
 				e.Message = "Internal Server Error"
 			case http.StatusNotFound:
@@ -30,6 +31,9 @@ func (fn Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		http.Error(w, e.Message, e.Code)
+		w.WriteHeader(e.ResponseCode)
+		if err := json.NewEncoder(w).Encode(e); err != nil {
+			http.Error(w, "", http.StatusInternalServerError)
+		}
 	}
 }

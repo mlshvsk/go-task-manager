@@ -3,6 +3,7 @@ package logger
 import (
 	"github.com/mlshvsk/go-task-manager/config"
 	"go.uber.org/zap"
+	"log"
 )
 
 var RequestLogger *zap.SugaredLogger
@@ -13,8 +14,10 @@ func InitRequestLogger(cfg config.Config) {
 	loggerConf.OutputPaths = []string{
 		cfg.RequestLog.OutputPath,
 	}
-	logger, _ := loggerConf.Build()
-	//defer logger.Sync() // flushes buffer, if any
+	logger, err := loggerConf.Build()
+	if err != nil {
+		log.Fatal(err)
+	}
 	RequestLogger = logger.Sugar()
 }
 
@@ -23,7 +26,9 @@ func InitErrorLogger(cfg config.Config) {
 	loggerConf.OutputPaths = []string{
 		cfg.ErrorLog.OutputPath,
 	}
-	logger, _ := loggerConf.Build()
-	//defer logger.Sync() // flushes buffer, if any
+	logger, err := loggerConf.Build()
+	if err != nil {
+		log.Fatal(err)
+	}
 	ErrorLogger = logger.Sugar()
 }

@@ -7,6 +7,7 @@ import (
 )
 
 type SqlConfig struct {
+	Driver       string `json:"driver"`
 	Username     string `json:"username"`
 	Password     string `json:"password"`
 	DatabaseName string `json:"database"`
@@ -24,7 +25,7 @@ type RequestLoggerConfig struct {
 
 type Config struct {
 	Env        string              `json:"env"`
-	Sql        SqlConfig           `json:"mysql"`
+	Sql        SqlConfig           `json:"sql"`
 	ErrorLog   ErrorLoggerConfig   `json:"error_logger"`
 	RequestLog RequestLoggerConfig `json:"request_logger"`
 	Port       int                 `json:"port"`

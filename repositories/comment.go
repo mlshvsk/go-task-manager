@@ -3,31 +3,32 @@ package repositories
 import (
 	"database/sql"
 	"fmt"
-	"github.com/mlshvsk/go-task-manager/database"
 	customErrors "github.com/mlshvsk/go-task-manager/errors"
 	"github.com/mlshvsk/go-task-manager/models"
-	"github.com/mlshvsk/go-task-manager/repositories/mysql"
+	"github.com/mlshvsk/go-task-manager/repositories/base"
+	"sync"
 )
 
 type commentRepository struct {
-	mysql.Repository
+	base base.Repository
 }
 
 var CommentRepository *commentRepository
 
-func InitCommentRepository(db *database.SqlDB) {
-	CommentRepository = &commentRepository{
-		Repository: mysql.Repository{
-			SqlDB: db,
-			TableName: "comments",
-		},
-	}
+func InitCommentRepository(baseRepo base.Repository) {
+	(&sync.Once{}).Do(func() {
+		CommentRepository = &commentRepository{
+			base: baseRepo,
+		}
+
+		CommentRepository.base.SetTableName("comments")
+	})
 }
 
 func (cr *commentRepository) FindAllByTask(taskId int64) ([]*models.Comment, error) {
 	comments := make([]*models.Comment, 0)
 
-	err := cr.Repository.
+	err := cr.base.
 		FindAll().
 		Where("and", [][]interface{}{{"task_id", "=", taskId}}).
 		OrderBy("created_at", "desc").
@@ -42,7 +43,7 @@ func (cr *commentRepository) FindAllByTask(taskId int64) ([]*models.Comment, err
 
 func (cr *commentRepository) Find(id int64) (*models.Comment, error) {
 	comments := make([]*models.Comment, 0)
-	err := cr.Repository.Find(id).Get(cr.scan(&comments))
+	err := cr.base.Find(id).Get(cr.scan(&comments))
 
 	if err != nil {
 		return nil, err
@@ -56,7 +57,7 @@ func (cr *commentRepository) Find(id int64) (*models.Comment, error) {
 }
 
 func (cr *commentRepository) Create(c *models.Comment) error {
-	id, err := cr.Repository.Create(map[string]interface{}{"data": &c.Data, "task_id": &c.TaskId, "created_at": &c.CreatedAt})
+	id, err := cr.base.Create(map[string]interface{}{"data": &c.Data, "task_id": &c.TaskId, "created_at": &c.CreatedAt})
 
 	if err != nil {
 		fmt.Println(err.Error())
@@ -68,7 +69,7 @@ func (cr *commentRepository) Create(c *models.Comment) error {
 }
 
 func (cr *commentRepository) Update(t *models.Comment) error {
-	err := cr.Repository.Update(t.Id, map[string]interface{}{
+	err := cr.base.Update(t.Id, map[string]interface{}{
 		"data": &t.Data,
 		"task_id": &t.TaskId,
 	})
@@ -78,6 +79,10 @@ func (cr *commentRepository) Update(t *models.Comment) error {
 	}
 
 	return nil
+}
+
+func (cr *commentRepository) Delete(id int64) error {
+	return cr.base.Delete(id)
 }
 
 func (cr *commentRepository) scan(comments *[]*models.Comment) func(rows *sql.Rows) error {

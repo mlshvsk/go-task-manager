@@ -1,7 +1,7 @@
 package services
 
 import (
-	errors2 "github.com/mlshvsk/go-task-manager/errors"
+	customErrors "github.com/mlshvsk/go-task-manager/errors"
 	"github.com/mlshvsk/go-task-manager/factories"
 	"github.com/mlshvsk/go-task-manager/models"
 	"github.com/mlshvsk/go-task-manager/repositories"
@@ -24,7 +24,7 @@ func StoreProject(p *models.Project) error {
 		return err
 	}
 	if projects != nil && len(projects) > 0 {
-		return &errors2.ModelAlreadyExists{}
+		return &customErrors.ModelAlreadyExists{}
 	}
 
 	*p, err = factories.ProjectFactory(p.Name, p.Description)
