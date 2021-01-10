@@ -6,6 +6,7 @@ import (
 	"fmt"
 	customErrors "github.com/mlshvsk/go-task-manager/errors"
 	"github.com/mlshvsk/go-task-manager/repositories/base"
+	"sort"
 	"strings"
 )
 
@@ -27,9 +28,15 @@ func (q *Query) Update(data map[string]interface{}) base.Query {
 	var fieldPlaceholders string
 	var pl []string
 
-	for i, v := range data {
-		pl = append(pl, i + " = ?")
-		q.Values = append(q.Values, v)
+	keys := make([]string, 0, len(data))
+	for k := range data {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	for _, k := range keys {
+		pl = append(pl, k + "=?")
+		q.Values = append(q.Values, data[k])
 	}
 
 	fieldPlaceholders = strings.Join(pl, ", ")
@@ -45,10 +52,16 @@ func (q *Query) Insert(data map[string]interface{}) base.Query {
 	var pl []string
 	var fn []string
 
-	for i, v := range data {
-		fn = append(fn, i)
+	keys := make([]string, 0, len(data))
+	for k := range data {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	for _, k := range keys {
+		fn = append(fn, k)
 		pl = append(pl, "?")
-		values = append(values, v)
+		values = append(values, data[k])
 	}
 
 	placeholders = strings.Join(pl, ", ")
@@ -101,10 +114,10 @@ func (q *Query) Get(callback func(rows *sql.Rows) error) error {
 		return &customErrors.QueryError{Err: q.Error}
 	}
 
-	rows, err := q.Repository.SqlDb().Query(q.compoundQuery(), q.Values...)
+	rows, err := q.Repository.SqlDb().Query(q.CompoundQuery(), q.Values...)
 
 	if err != nil {
-		return &customErrors.QueryExecError{Value: err.Error(), Query: q.compoundQuery()}
+		return &customErrors.QueryExecError{Value: err.Error(), Query: q.CompoundQuery()}
 	}
 
 	return callback(rows)
@@ -115,16 +128,16 @@ func (q *Query) Exec() (sql.Result, error) {
 		return nil, &customErrors.QueryError{Err: q.Error}
 	}
 
-	res, err := q.Repository.SqlDb().Exec(q.compoundQuery(), q.Values...)
+	res, err := q.Repository.SqlDb().Exec(q.CompoundQuery(), q.Values...)
 
 	if err != nil {
-		err = &customErrors.QueryExecError{Value: err.Error(), Query: q.compoundQuery()}
+		err = &customErrors.QueryExecError{Value: err.Error(), Query: q.CompoundQuery()}
 	}
 
 	return res, err
 }
 
-func (q *Query) compoundQuery() string {
+func (q *Query) CompoundQuery() string {
 	return fmt.Sprintf("%s %s %s", q.Main, q.WhereClause, q.OrderByClause)
 }
 

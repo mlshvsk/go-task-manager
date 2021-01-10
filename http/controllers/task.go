@@ -9,13 +9,22 @@ import (
 	"net/http"
 )
 
-func IndexTasks(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
+func IndexTasksByColumn(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 	columnId, err := helpers.GetId(req, "columnId")
 	if err != nil {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
 	tasks, err := services.GetTasksByColumn(columnId)
+	if err != nil {
+		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
+	}
+
+	return helpers.EncodeResponse(rw, tasks)
+}
+
+func IndexTasks(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
+	tasks, err := services.GetTasks()
 	if err != nil {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}

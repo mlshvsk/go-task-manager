@@ -76,6 +76,10 @@ func DeleteColumn(rw http.ResponseWriter, req *http.Request) *handlers.AppError 
 			return &handlers.AppError{Error: err, Message: "Cannot delete last project column", ResponseCode: http.StatusBadRequest}
 		}
 
+		if _, ok := err.(*customErrors.NotFoundError); ok == true {
+			return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
+		}
+
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 

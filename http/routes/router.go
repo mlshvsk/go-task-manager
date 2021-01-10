@@ -32,7 +32,7 @@ func NewRouter() *mux.Router {
 	columns.Handle("/{columnId:[0-9]*}", handlers.Handler(controllers.DeleteColumn)).Methods(http.MethodDelete)
 	columns.Handle("/{columnId:[0-9]*}", handlers.Handler(controllers.UpdateColumn)).Methods(http.MethodPut)
 	columns.Handle("/{columnId:[0-9]*}/move", handlers.Handler(controllers.MoveColumn)).Methods(http.MethodPost)
-	columns.Handle("/{columnId:[0-9]*}/tasks", handlers.Handler(controllers.IndexTasks)).Methods(http.MethodGet)
+	columns.Handle("/{columnId:[0-9]*}/tasks", handlers.Handler(controllers.IndexTasksByColumn)).Methods(http.MethodGet)
 	columns.Handle("/{columnId:[0-9]*}/tasks", handlers.Handler(controllers.StoreTask)).Methods(http.MethodPost)
 
 	tasks := columns.PathPrefix("/tasks").Subrouter()
