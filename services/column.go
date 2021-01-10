@@ -11,8 +11,8 @@ import (
 type ColumnService struct {
 }
 
-func GetColumns(projectId int64) ([]*models.Column, error) {
-	return repositories.ColumnRepository.FindAllByProject(projectId)
+func GetColumns(projectId int64, page int64, limit int64) ([]*models.Column, error) {
+	return repositories.ColumnRepository.FindAllByProject(projectId, page, limit)
 }
 
 func GetColumn(columnId int64) (*models.Column, error) {
@@ -63,7 +63,7 @@ func DeleteColumn(columnId int64) error {
 		return err
 	}
 
-	columns, err := repositories.ColumnRepository.FindAllByProject(column.ProjectId)
+	columns, err := repositories.ColumnRepository.FindAllByProject(column.ProjectId, 0, -1)
 	if err != nil {
 		return err
 	} else if columns == nil || len(columns) <= 1 {

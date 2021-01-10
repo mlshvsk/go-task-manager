@@ -15,21 +15,31 @@ func IndexTasksByColumn(rw http.ResponseWriter, req *http.Request) *handlers.App
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	tasks, err := services.GetTasksByColumn(columnId)
+	page, limit, err := helpers.GetPagination(req)
 	if err != nil {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	return helpers.EncodeResponse(rw, tasks)
+	tasks, err := services.GetTasksByColumn(columnId, page, limit)
+	if err != nil {
+		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
+	}
+
+	return helpers.PrepareResponse(rw, tasks)
 }
 
 func IndexTasks(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
-	tasks, err := services.GetTasks()
+	page, limit, err := helpers.GetPagination(req)
 	if err != nil {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	return helpers.EncodeResponse(rw, tasks)
+	tasks, err := services.GetTasks(page, limit)
+	if err != nil {
+		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
+	}
+
+	return helpers.PrepareResponse(rw, tasks)
 }
 
 func StoreTask(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
@@ -52,7 +62,7 @@ func StoreTask(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	return helpers.EncodeResponse(rw, task)
+	return helpers.PrepareResponse(rw, task)
 }
 
 func ShowTask(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
@@ -70,7 +80,7 @@ func ShowTask(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	return helpers.EncodeResponse(rw, task)
+	return helpers.PrepareResponse(rw, task)
 }
 
 func UpdateTask(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
@@ -92,7 +102,7 @@ func UpdateTask(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	return helpers.EncodeResponse(rw, task)
+	return helpers.PrepareResponse(rw, task)
 }
 
 func MoveTask(rw http.ResponseWriter, req *http.Request) *handlers.AppError {

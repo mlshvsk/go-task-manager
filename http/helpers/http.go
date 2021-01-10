@@ -12,6 +12,10 @@ import (
 	"strconv"
 )
 
+type Response struct {
+	Data interface{} `json:"data"`
+}
+
 func RequestBody(body io.ReadCloser) (reqBody []byte, err error) {
 	reqBody, err = ioutil.ReadAll(body)
 	defer body.Close()
@@ -26,6 +30,30 @@ func RequestVar(req *http.Request, key string) (string, bool) {
 	return val, ok
 }
 
+func GetPagination(req *http.Request) (int64, int64, error) {
+	limit, ok := RequestVar(req, "limit")
+	if ok == false {
+		return 0, 0, errors.New("limit is not found in request")
+	}
+
+	page, ok := RequestVar(req, "page")
+	if ok == false {
+		return 0, 0, errors.New("page is not found in request")
+	}
+
+	limitParsed, err := strconv.ParseInt(limit, 10, 64)
+	if err != nil {
+		return 0, 0, errors.New("cannot parse limit")
+	}
+
+	pageParsed, err := strconv.ParseInt(page, 10, 64)
+	if err != nil {
+		return 0, 0, errors.New("cannot parse page")
+	}
+
+	return pageParsed, limitParsed, nil
+}
+
 func GetId(req *http.Request, idString string) (int64, error) {
 	id, ok := RequestVar(req, idString)
 	if ok == false {
@@ -35,8 +63,12 @@ func GetId(req *http.Request, idString string) (int64, error) {
 	return strconv.ParseInt(id, 10, 64)
 }
 
-func EncodeResponse(rw http.ResponseWriter, res interface{}) *handlers.AppError {
-	if err := json.NewEncoder(rw).Encode(res); err != nil {
+func PrepareResponse(rw http.ResponseWriter, res interface{}) *handlers.AppError {
+	data := &Response{
+		Data: res,
+	}
+
+	if err := json.NewEncoder(rw).Encode(data); err != nil {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 

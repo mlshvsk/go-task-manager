@@ -24,11 +24,12 @@ func InitProjectRepository(baseRepo base.Repository) {
 	})
 }
 
-func (r *projectRepository) FindAll() ([]*models.Project, error) {
+func (r *projectRepository) FindAll(offset int64, limit int64) ([]*models.Project, error) {
 	var projects = make([]*models.Project, 0)
 	err := r.base.
 		FindAll().
 		OrderBy("name", "asc").
+		Limit(offset, limit).
 		Get(r.scan(&projects))
 
 	if err != nil {

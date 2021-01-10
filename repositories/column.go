@@ -25,11 +25,12 @@ func InitColumnRepository(baseRepo base.Repository) {
 	})
 }
 
-func (cr *columnRepository) FindAll() ([]*models.Column, error) {
+func (cr *columnRepository) FindAll(offset int64, limit int64) ([]*models.Column, error) {
 	var columns = make([]*models.Column, 0)
 	err := cr.base.
 		FindAll().
 		OrderBy("project_id", "asc").
+		Limit(offset, limit).
 		Get(cr.scan(&columns))
 
 	if err != nil {
@@ -39,12 +40,13 @@ func (cr *columnRepository) FindAll() ([]*models.Column, error) {
 	return columns, nil
 }
 
-func (cr *columnRepository) FindAllByProject(projectId int64) ([]*models.Column, error) {
+func (cr *columnRepository) FindAllByProject(projectId int64, offset int64, limit int64) ([]*models.Column, error) {
 	var columns = make([]*models.Column, 0)
 	err := cr.base.
 		FindAll().
 		Where("and", [][]interface{}{{"project_id", "=", projectId}}).
 		OrderBy("position", "asc").
+		Limit(offset, limit).
 		Get(cr.scan(&columns))
 
 	if err != nil {

@@ -9,8 +9,8 @@ import (
 type CommentService struct {
 }
 
-func GetCommentsByTask(taskId int64) ([]*models.Comment, error) {
-	return repositories.CommentRepository.FindAllByTask(taskId)
+func GetCommentsByTask(taskId int64, page int64, limit int64) ([]*models.Comment, error) {
+	return repositories.CommentRepository.FindAllByTask(taskId, page, limit)
 }
 
 func GetComment(commentId int64) (*models.Comment, error) {

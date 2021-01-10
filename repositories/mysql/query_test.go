@@ -143,7 +143,7 @@ func TestCompoundQuery(t *testing.T) {
 	db, _ := NewMock()
 	q := getBaseQuery(db)
 
-	expectedQuery := "SELECT id, name FROM test  ORDER BY id DESC"
+	expectedQuery := "SELECT id, name FROM test  ORDER BY id DESC "
 
 	q.Select([]string{"id", "name"}).OrderBy("id", "desc")
 

@@ -79,6 +79,16 @@ func (q *Query) OrderBy(colName string, order string) base.Query {
 	return q
 }
 
+func (q *Query) Limit(page int64, limit int64) base.Query {
+	if limit == -1 {
+		return q
+	}
+
+	q.OffsetClause = fmt.Sprintf("LIMIT %v OFFSET %v", limit, page * limit)
+
+	return q
+}
+
 func (q *Query) Where(logicalOperator string, data [][]interface{}) base.Query {
 	var placeholders []string
 
@@ -138,7 +148,7 @@ func (q *Query) Exec() (sql.Result, error) {
 }
 
 func (q *Query) CompoundQuery() string {
-	return fmt.Sprintf("%s %s %s", q.Main, q.WhereClause, q.OrderByClause)
+	return fmt.Sprintf("%s %s %s %s", q.Main, q.WhereClause, q.OrderByClause, q.OffsetClause)
 }
 
 

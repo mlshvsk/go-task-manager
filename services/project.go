@@ -10,8 +10,8 @@ import (
 type ProjectService struct {
 }
 
-func GetProjects() ([]*models.Project, error) {
-	return repositories.ProjectRepository.FindAll()
+func GetProjects(page int64, limit int64) ([]*models.Project, error) {
+	return repositories.ProjectRepository.FindAll(page, limit)
 }
 
 func GetProject(id int64) (*models.Project, error) {

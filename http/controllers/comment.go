@@ -15,12 +15,17 @@ func IndexComments(rw http.ResponseWriter, req *http.Request) *handlers.AppError
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	comments, err := services.GetCommentsByTask(commentId)
+	page, limit, err := helpers.GetPagination(req)
 	if err != nil {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	return helpers.EncodeResponse(rw, comments)
+	comments, err := services.GetCommentsByTask(commentId, page, limit)
+	if err != nil {
+		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
+	}
+
+	return helpers.PrepareResponse(rw, comments)
 }
 
 func ShowComment(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
@@ -38,7 +43,7 @@ func ShowComment(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	return helpers.EncodeResponse(rw, task)
+	return helpers.PrepareResponse(rw, task)
 }
 
 func StoreComment(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
@@ -61,7 +66,7 @@ func StoreComment(rw http.ResponseWriter, req *http.Request) *handlers.AppError 
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	return helpers.EncodeResponse(rw, comment)
+	return helpers.PrepareResponse(rw, comment)
 }
 
 func UpdateComment(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
@@ -83,7 +88,7 @@ func UpdateComment(rw http.ResponseWriter, req *http.Request) *handlers.AppError
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	return helpers.EncodeResponse(rw, comment)
+	return helpers.PrepareResponse(rw, comment)
 }
 
 func DeleteComment(rw http.ResponseWriter, req *http.Request) *handlers.AppError {

@@ -10,12 +10,12 @@ import (
 type TaskService struct {
 }
 
-func GetTasksByColumn(columnId int64) ([]*models.Task, error) {
-	return repositories.TaskRepository.FindAllByColumn(columnId)
+func GetTasksByColumn(columnId int64, page int64, limit int64) ([]*models.Task, error) {
+	return repositories.TaskRepository.FindAllByColumn(columnId, page, limit)
 }
 
-func GetTasks() ([]*models.Task, error) {
-	return repositories.TaskRepository.FindAll()
+func GetTasks(page int64, limit int64) ([]*models.Task, error) {
+	return repositories.TaskRepository.FindAll(page, limit)
 }
 
 func GetTask(id int64) (*models.Task, error) {
@@ -137,7 +137,7 @@ func MoveTaskToColumn(taskId int64, toColumnId int64) error {
 }
 
 func moveAllToColumn(fromColumn *models.Column, toColumn *models.Column) error {
-	tasks, err := repositories.TaskRepository.FindAllByColumn(fromColumn.Id)
+	tasks, err := repositories.TaskRepository.FindAllByColumn(fromColumn.Id, 0, -1)
 	if err != nil {
 		return err
 	}

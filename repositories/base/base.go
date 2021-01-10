@@ -25,6 +25,7 @@ type BaseQuery struct {
 	Main          string
 	OrderByClause string
 	WhereClause   string
+	OffsetClause        string
 	Values        []interface{}
 	Repository    Repository
 	Error         error
@@ -36,6 +37,7 @@ type Query interface {
 	Update(data map[string]interface{}) Query
 	Insert(data map[string]interface{}) Query
 	OrderBy(colName string, order string) Query
+	Limit(page int64, limit int64) Query
 	Where(logicalOperator string, data [][]interface{}) Query
 	Get(callback func(rows *sql.Rows) error) error
 	Exec() (sql.Result, error)

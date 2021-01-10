@@ -24,11 +24,12 @@ func InitTaskRepository(baseRepo base.Repository) {
 	})
 }
 
-func (tr *taskRepository) FindAll() ([]*models.Task, error) {
+func (tr *taskRepository) FindAll(offset int64, limit int64) ([]*models.Task, error) {
 	tasks := make([]*models.Task, 0)
 	err := tr.base.
 		FindAll().
 		OrderBy("position", "asc").
+		Limit(offset, limit).
 		Get(tr.scan(&tasks))
 
 	if err != nil {
@@ -38,11 +39,12 @@ func (tr *taskRepository) FindAll() ([]*models.Task, error) {
 	return tasks, nil
 }
 
-func (tr *taskRepository) FindAllByColumn(columnId int64) ([]*models.Task, error) {
+func (tr *taskRepository) FindAllByColumn(columnId int64, offset int64, limit int64) ([]*models.Task, error) {
 	tasks := make([]*models.Task, 0)
 	err := tr.base.
 		FindAll().
 		Where("and", [][]interface{}{{"column_id", "=", columnId}}).
+		Limit(offset, limit).
 		Get(tr.scan(&tasks))
 
 	if err != nil {
@@ -52,7 +54,7 @@ func (tr *taskRepository) FindAllByColumn(columnId int64) ([]*models.Task, error
 	return tasks, nil
 }
 
-func (tr *taskRepository) FindAllByColumnAndName(columnId int64, name string) ([]*models.Task, error) {
+func (tr *taskRepository) FindAllByColumnAndName(columnId int64, name string, offset int64) ([]*models.Task, error) {
 	tasks := make([]*models.Task, 0)
 	err := tr.base.
 		FindAll().

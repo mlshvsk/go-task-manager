@@ -15,12 +15,17 @@ func IndexColumns(rw http.ResponseWriter, req *http.Request) *handlers.AppError 
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	columns, err := services.GetColumns(projectId)
+	page, limit, err := helpers.GetPagination(req)
 	if err != nil {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	return helpers.EncodeResponse(rw, columns)
+	columns, err := services.GetColumns(projectId, page, limit)
+	if err != nil {
+		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
+	}
+
+	return helpers.PrepareResponse(rw, columns)
 }
 
 func ShowColumn(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
@@ -38,7 +43,7 @@ func ShowColumn(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	return helpers.EncodeResponse(rw, column)
+	return helpers.PrepareResponse(rw, column)
 }
 
 func StoreColumn(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
@@ -62,7 +67,7 @@ func StoreColumn(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	return helpers.EncodeResponse(rw, column)
+	return helpers.PrepareResponse(rw, column)
 }
 
 func DeleteColumn(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
@@ -105,7 +110,7 @@ func UpdateColumn(rw http.ResponseWriter, req *http.Request) *handlers.AppError 
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	return helpers.EncodeResponse(rw, column)
+	return helpers.PrepareResponse(rw, column)
 }
 
 func MoveColumn(rw http.ResponseWriter, req *http.Request) *handlers.AppError {

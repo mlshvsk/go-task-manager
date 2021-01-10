@@ -13,13 +13,18 @@ type ProjectController struct {
 }
 
 func IndexProjects(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
-	projects, err := services.GetProjects()
+	page, limit, err := helpers.GetPagination(req)
+	if err != nil {
+		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
+	}
+
+	projects, err := services.GetProjects(page, limit)
 
 	if err != nil {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	return helpers.EncodeResponse(rw, projects)
+	return helpers.PrepareResponse(rw, projects)
 }
 
 func StoreProject(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
@@ -36,7 +41,7 @@ func StoreProject(rw http.ResponseWriter, req *http.Request) *handlers.AppError 
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	return helpers.EncodeResponse(rw, project)
+	return helpers.PrepareResponse(rw, project)
 }
 
 func ShowProject(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
@@ -54,7 +59,7 @@ func ShowProject(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	return helpers.EncodeResponse(rw, project)
+	return helpers.PrepareResponse(rw, project)
 }
 
 func UpdateProject(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
@@ -76,7 +81,7 @@ func UpdateProject(rw http.ResponseWriter, req *http.Request) *handlers.AppError
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	return helpers.EncodeResponse(rw, project)
+	return helpers.PrepareResponse(rw, project)
 }
 
 func DeleteProject(rw http.ResponseWriter, req *http.Request) *handlers.AppError {

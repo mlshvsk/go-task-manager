@@ -25,13 +25,14 @@ func InitCommentRepository(baseRepo base.Repository) {
 	})
 }
 
-func (cr *commentRepository) FindAllByTask(taskId int64) ([]*models.Comment, error) {
+func (cr *commentRepository) FindAllByTask(taskId int64, offset int64, limit int64) ([]*models.Comment, error) {
 	comments := make([]*models.Comment, 0)
 
 	err := cr.base.
 		FindAll().
 		Where("and", [][]interface{}{{"task_id", "=", taskId}}).
 		OrderBy("created_at", "desc").
+		Limit(offset, limit).
 		Get(cr.scan(&comments))
 
 	if err != nil {

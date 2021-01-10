@@ -44,7 +44,7 @@ func TestFindAllColumnsByProject(t *testing.T) {
 
 	mock.ExpectQuery(query).WithArgs(int64(1)).WillReturnRows(rows)
 
-	res, err := repo.FindAllByProject(int64(1))
+	res, err := repo.FindAllByProject(int64(1), 0, -1)
 
 	assert.Nil(t, err)
 	assert.Equal(t, columns, res)
