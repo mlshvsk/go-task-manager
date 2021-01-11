@@ -4,22 +4,31 @@ import (
 	customErrors "github.com/mlshvsk/go-task-manager/errors"
 	"github.com/mlshvsk/go-task-manager/factories"
 	"github.com/mlshvsk/go-task-manager/models"
-	"github.com/mlshvsk/go-task-manager/repositories"
+	"sync"
 )
 
-type ProjectService struct {
+type projectService struct {
+	r models.ProjectRepository
 }
 
-func GetProjects(page int64, limit int64) ([]*models.Project, error) {
-	return repositories.ProjectRepository.FindAll(page, limit)
+var ProjectService projectService
+
+func InitProjectService(r models.ProjectRepository) {
+	(&sync.Once{}).Do(func() {
+		ProjectService = projectService{r}
+	})
 }
 
-func GetProject(id int64) (*models.Project, error) {
-	return repositories.ProjectRepository.Find(id)
+func (s *projectService) GetProjects(page int64, limit int64) ([]*models.Project, error) {
+	return s.r.FindAll(page, limit)
 }
 
-func StoreProject(p *models.Project) error {
-	projects, err := repositories.ProjectRepository.FindAllByName(p.Name)
+func (s *projectService) GetProject(id int64) (*models.Project, error) {
+	return s.r.Find(id)
+}
+
+func (s *projectService) StoreProject(p *models.Project) error {
+	projects, err := s.r.FindAllByName(p.Name)
 	if err != nil {
 		return err
 	}
@@ -32,7 +41,7 @@ func StoreProject(p *models.Project) error {
 		return err
 	}
 
-	if err := repositories.ProjectRepository.Create(p); err != nil {
+	if err := s.r.Create(p); err != nil {
 		return err
 	}
 
@@ -41,24 +50,24 @@ func StoreProject(p *models.Project) error {
 		return err
 	}
 
-	return repositories.ColumnRepository.Create(&column)
+	return ColumnService.StoreColumn(&column)
 }
 
-func UpdateProject(p *models.Project) error {
-	projectFromDB, err := repositories.ProjectRepository.Find(p.Id)
+func (s *projectService) UpdateProject(p *models.Project) error {
+	projectFromDB, err := s.r.Find(p.Id)
 	if err != nil {
 		return err
 	}
 
 	p.CreatedAt = projectFromDB.CreatedAt
 
-	return repositories.ProjectRepository.Update(p)
+	return s.r.Update(p)
 }
 
-func DeleteProject(id int64) error {
-	if _, err := repositories.ProjectRepository.Find(id); err != nil {
+func (s *projectService) DeleteProject(id int64) error {
+	if _, err := s.r.Find(id); err != nil {
 		return err
 	}
 
-	return repositories.ProjectRepository.Delete(id)
+	return s.r.Delete(id)
 }

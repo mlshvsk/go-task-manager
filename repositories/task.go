@@ -5,23 +5,19 @@ import (
 	customErrors "github.com/mlshvsk/go-task-manager/errors"
 	"github.com/mlshvsk/go-task-manager/models"
 	"github.com/mlshvsk/go-task-manager/repositories/base"
-	"sync"
 )
 
 type taskRepository struct {
 	base base.Repository
 }
 
-var TaskRepository *taskRepository
+func InitTaskRepository(baseRepo base.Repository) *taskRepository {
+	tr := &taskRepository{
+		base: baseRepo,
+	}
 
-func InitTaskRepository(baseRepo base.Repository) {
-	(&sync.Once{}).Do(func() {
-		TaskRepository = &taskRepository{
-			base: baseRepo,
-		}
-
-		TaskRepository.base.SetTableName("tasks")
-	})
+	tr.base.SetTableName("tasks")
+	return tr
 }
 
 func (tr *taskRepository) FindAll(offset int64, limit int64) ([]*models.Task, error) {

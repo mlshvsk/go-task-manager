@@ -178,12 +178,12 @@ func TestDeleteColumn(t *testing.T) {
 func getColumnRepository(db *sql.DB) *columnRepository {
 	baseRepo := &mysql.Repository{SqlDB: &database.SqlDB{Conn: db}, TableName: "test"}
 
-	ColumnRepository = &columnRepository{
+	columnRepository := &columnRepository{
 		base: baseRepo,
 	}
-	ColumnRepository.base.SetTableName("columns")
+	columnRepository.base.SetTableName("columns")
 
-	return ColumnRepository
+	return columnRepository
 }
 
 func newMock() (*sql.DB, sqlmock.Sqlmock) {

@@ -18,7 +18,7 @@ func IndexProjects(rw http.ResponseWriter, req *http.Request) *handlers.AppError
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	projects, err := services.GetProjects(page, limit)
+	projects, err := services.ProjectService.GetProjects(page, limit)
 
 	if err != nil {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
@@ -33,7 +33,7 @@ func StoreProject(rw http.ResponseWriter, req *http.Request) *handlers.AppError 
 		return er
 	}
 
-	if err := services.StoreProject(&project); err != nil {
+	if err := services.ProjectService.StoreProject(&project); err != nil {
 		if _, ok := err.(*customErrors.ModelAlreadyExists); ok == true {
 			return &handlers.AppError{Error: err, Message: "Model already exists", ResponseCode: http.StatusBadRequest}
 		}
@@ -50,7 +50,7 @@ func ShowProject(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	project, err := services.GetProject(id)
+	project, err := services.ProjectService.GetProject(id)
 	if err != nil {
 		if _, ok := err.(*customErrors.NotFoundError); ok == true {
 			return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
@@ -74,7 +74,7 @@ func UpdateProject(rw http.ResponseWriter, req *http.Request) *handlers.AppError
 	}
 	project.Id = id
 
-	if err := services.UpdateProject(&project); err != nil {
+	if err := services.ProjectService.UpdateProject(&project); err != nil {
 		if _, ok := err.(*customErrors.NotFoundError); ok == true {
 			return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
 		}
@@ -90,7 +90,7 @@ func DeleteProject(rw http.ResponseWriter, req *http.Request) *handlers.AppError
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	if err := services.DeleteProject(id); err != nil {
+	if err := services.ProjectService.DeleteProject(id); err != nil {
 		if _, ok := err.(*customErrors.NotFoundError); ok == true {
 			return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
 		}

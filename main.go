@@ -8,6 +8,7 @@ import (
 	"github.com/mlshvsk/go-task-manager/repositories"
 	"github.com/mlshvsk/go-task-manager/repositories/base"
 	"github.com/mlshvsk/go-task-manager/repositories/mysql"
+	"github.com/mlshvsk/go-task-manager/services"
 	"log"
 )
 
@@ -25,10 +26,18 @@ func main() {
 func initServices(a *app.App) {
 	logger.InitRequestLogger(a.Config)
 	logger.InitErrorLogger(a.Config)
-	repositories.InitCommentRepository(initBaseRepository(a))
-	repositories.InitTaskRepository(initBaseRepository(a))
-	repositories.InitColumnRepository(initBaseRepository(a))
-	repositories.InitProjectRepository(initBaseRepository(a))
+
+	cr := repositories.InitCommentRepository(initBaseRepository(a))
+	services.InitCommentService(cr)
+
+	tr := repositories.InitTaskRepository(initBaseRepository(a))
+	services.InitTaskService(tr)
+
+	colR := repositories.InitColumnRepository(initBaseRepository(a))
+	services.InitColumnService(colR)
+
+	pr := repositories.InitProjectRepository(initBaseRepository(a))
+	services.InitProjectService(pr)
 }
 
 func initBaseRepository(a *app.App) base.Repository {

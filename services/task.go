@@ -4,26 +4,35 @@ import (
 	"errors"
 	"github.com/mlshvsk/go-task-manager/factories"
 	"github.com/mlshvsk/go-task-manager/models"
-	"github.com/mlshvsk/go-task-manager/repositories"
+	"sync"
 )
 
-type TaskService struct {
+type taskService struct {
+	r models.TaskRepository
 }
 
-func GetTasksByColumn(columnId int64, page int64, limit int64) ([]*models.Task, error) {
-	return repositories.TaskRepository.FindAllByColumn(columnId, page, limit)
+var TaskService taskService
+
+func InitTaskService(r models.TaskRepository) {
+	(&sync.Once{}).Do(func() {
+		TaskService = taskService{r}
+	})
 }
 
-func GetTasks(page int64, limit int64) ([]*models.Task, error) {
-	return repositories.TaskRepository.FindAll(page, limit)
+func (s *taskService) GetTasksByColumn(columnId int64, page int64, limit int64) ([]*models.Task, error) {
+	return s.r.FindAllByColumn(columnId, page, limit)
 }
 
-func GetTask(id int64) (*models.Task, error) {
-	return repositories.TaskRepository.Find(id)
+func (s *taskService) GetTasks(page int64, limit int64) ([]*models.Task, error) {
+	return s.r.FindAll(page, limit)
 }
 
-func StoreTask(t *models.Task) error {
-	previousTask, err := repositories.TaskRepository.FindWithMaxPosition(t.ColumnId)
+func (s *taskService) GetTask(id int64) (*models.Task, error) {
+	return s.r.Find(id)
+}
+
+func (s *taskService) StoreTask(t *models.Task) error {
+	previousTask, err := s.r.FindWithMaxPosition(t.ColumnId)
 	if err != nil {
 		return err
 	}
@@ -39,11 +48,11 @@ func StoreTask(t *models.Task) error {
 		return err
 	}
 
-	return repositories.TaskRepository.Create(t)
+	return s.r.Create(t)
 }
 
-func UpdateTask(t *models.Task) error {
-	taskFromDB, err := repositories.TaskRepository.Find(t.Id)
+func (s *taskService) UpdateTask(t *models.Task) error {
+	taskFromDB, err := s.r.Find(t.Id)
 	if err != nil {
 		return err
 	}
@@ -51,27 +60,27 @@ func UpdateTask(t *models.Task) error {
 	t.Position = taskFromDB.Position
 	t.CreatedAt = taskFromDB.CreatedAt
 
-	return repositories.TaskRepository.Update(t)
+	return s.r.Update(t)
 }
 
-func DeleteTask(taskId int64) error {
-	_, err := repositories.TaskRepository.Find(taskId)
+func (s *taskService) DeleteTask(taskId int64) error {
+	_, err := s.r.Find(taskId)
 	if err != nil {
 		return err
 	}
 
-	return repositories.TaskRepository.Delete(taskId)
+	return s.r.Delete(taskId)
 }
 
-func MoveTaskWithinColumn(taskId int64, direction string) error {
+func (s *taskService) MoveTaskWithinColumn(taskId int64, direction string) error {
 	nextTask := new(models.Task)
-	task, err := repositories.TaskRepository.Find(taskId)
+	task, err := s.r.Find(taskId)
 	if err != nil {
 		return err
 	}
 
 	if direction == "down" {
-		nextTask, err = repositories.TaskRepository.FindByNextPosition(task.ColumnId, task.Position)
+		nextTask, err = s.r.FindByNextPosition(task.ColumnId, task.Position)
 		if err != nil {
 			return err
 		}
@@ -83,10 +92,10 @@ func MoveTaskWithinColumn(taskId int64, direction string) error {
 		nextTask.Position--
 		task.Position++
 
-		repositories.TaskRepository.Update(nextTask)
-		repositories.TaskRepository.Update(task)
+		s.r.Update(nextTask)
+		s.r.Update(task)
 	} else if direction == "up" {
-		nextTask, err = repositories.TaskRepository.FindByPreviousPosition(task.ColumnId, task.Position)
+		nextTask, err = s.r.FindByPreviousPosition(task.ColumnId, task.Position)
 		if err != nil {
 			return err
 		}
@@ -98,31 +107,31 @@ func MoveTaskWithinColumn(taskId int64, direction string) error {
 		nextTask.Position++
 		task.Position--
 
-		repositories.TaskRepository.Update(nextTask)
-		repositories.TaskRepository.Update(task)
+		s.r.Update(nextTask)
+		s.r.Update(task)
 	} else {
 		return errors.New("invalid direction: " + direction)
 	}
 
-	if err := repositories.TaskRepository.Update(nextTask); err != nil {
+	if err := s.r.Update(nextTask); err != nil {
 		return err
 	}
 
-	return repositories.TaskRepository.Update(task)
+	return s.r.Update(task)
 }
 
-func MoveTaskToColumn(taskId int64, toColumnId int64) error {
-	task, err := repositories.TaskRepository.Find(taskId)
+func (s *taskService) MoveTaskToColumn(taskId int64, toColumnId int64) error {
+	task, err := s.r.Find(taskId)
 	if err != nil {
 		return err
 	}
 
-	_, err = repositories.ColumnRepository.Find(toColumnId)
+	_, err = ColumnService.GetColumn(toColumnId)
 	if err != nil {
 		return err
 	}
 
-	toColumnMaxPosition, err := repositories.TaskRepository.FindWithMaxPosition(toColumnId)
+	toColumnMaxPosition, err := s.r.FindWithMaxPosition(toColumnId)
 	if err != nil {
 		return err
 	}
@@ -133,17 +142,17 @@ func MoveTaskToColumn(taskId int64, toColumnId int64) error {
 		task.Position = 0
 	}
 
-	return repositories.TaskRepository.Update(task)
+	return s.r.Update(task)
 }
 
-func moveAllToColumn(fromColumn *models.Column, toColumn *models.Column) error {
-	tasks, err := repositories.TaskRepository.FindAllByColumn(fromColumn.Id, 0, -1)
+func (s *taskService) moveAllToColumn(fromColumn *models.Column, toColumn *models.Column) error {
+	tasks, err := s.r.FindAllByColumn(fromColumn.Id, 0, -1)
 	if err != nil {
 		return err
 	}
 
 	nextPosition := int64(0)
-	toColumnMaxPosition, err := repositories.TaskRepository.FindWithMaxPosition(toColumn.Id)
+	toColumnMaxPosition, err := s.r.FindWithMaxPosition(toColumn.Id)
 	if err != nil {
 		return err
 	} else if toColumnMaxPosition != nil {
@@ -154,7 +163,7 @@ func moveAllToColumn(fromColumn *models.Column, toColumn *models.Column) error {
 		v.ColumnId = toColumn.Id
 		v.Position = nextPosition
 
-		err := repositories.TaskRepository.Update(v)
+		err := s.r.Update(v)
 		if err != nil {
 			return err
 		}

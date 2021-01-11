@@ -20,7 +20,7 @@ func IndexTasksByColumn(rw http.ResponseWriter, req *http.Request) *handlers.App
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	tasks, err := services.GetTasksByColumn(columnId, page, limit)
+	tasks, err := services.TaskService.GetTasksByColumn(columnId, page, limit)
 	if err != nil {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
@@ -34,7 +34,7 @@ func IndexTasks(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	tasks, err := services.GetTasks(page, limit)
+	tasks, err := services.TaskService.GetTasks(page, limit)
 	if err != nil {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
@@ -58,7 +58,7 @@ func StoreTask(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 	}
 	task.ColumnId = columnId
 
-	if err := services.StoreTask(&task); err != nil {
+	if err := services.TaskService.StoreTask(&task); err != nil {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
@@ -71,7 +71,7 @@ func ShowTask(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	task, err := services.GetTask(taskId)
+	task, err := services.TaskService.GetTask(taskId)
 	if err != nil {
 		if _, ok := err.(*customErrors.NotFoundError); ok == true {
 			return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
@@ -95,7 +95,7 @@ func UpdateTask(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 	}
 	task.Id = id
 
-	if err := services.UpdateTask(&task); err != nil {
+	if err := services.TaskService.UpdateTask(&task); err != nil {
 		if _, ok := err.(*customErrors.NotFoundError); ok == true {
 			return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
 		}
@@ -116,7 +116,7 @@ func MoveTask(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
 	}
 
-	if err := services.MoveTaskWithinColumn(id, body.Direction); err != nil {
+	if err := services.TaskService.MoveTaskWithinColumn(id, body.Direction); err != nil {
 		if _, ok := err.(*customErrors.NotFoundError); ok == true {
 			return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
 		}
@@ -137,7 +137,7 @@ func MoveTaskColumn(rw http.ResponseWriter, req *http.Request) *handlers.AppErro
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	if err := services.MoveTaskToColumn(id, columnId); err != nil {
+	if err := services.TaskService.MoveTaskToColumn(id, columnId); err != nil {
 		if _, ok := err.(*customErrors.NotFoundError); ok == true {
 			return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
 		}
@@ -153,7 +153,7 @@ func DeleteTask(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	if err := services.DeleteTask(id); err != nil {
+	if err := services.TaskService.DeleteTask(id); err != nil {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 

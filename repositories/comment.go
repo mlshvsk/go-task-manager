@@ -6,23 +6,20 @@ import (
 	customErrors "github.com/mlshvsk/go-task-manager/errors"
 	"github.com/mlshvsk/go-task-manager/models"
 	"github.com/mlshvsk/go-task-manager/repositories/base"
-	"sync"
 )
 
 type commentRepository struct {
 	base base.Repository
 }
 
-var CommentRepository *commentRepository
+func InitCommentRepository(baseRepo base.Repository) *commentRepository {
+	r := &commentRepository{
+		base: baseRepo,
+	}
 
-func InitCommentRepository(baseRepo base.Repository) {
-	(&sync.Once{}).Do(func() {
-		CommentRepository = &commentRepository{
-			base: baseRepo,
-		}
+	r.base.SetTableName("columns")
 
-		CommentRepository.base.SetTableName("comments")
-	})
+	return r
 }
 
 func (cr *commentRepository) FindAllByTask(taskId int64, offset int64, limit int64) ([]*models.Comment, error) {

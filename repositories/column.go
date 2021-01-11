@@ -6,23 +6,19 @@ import (
 	customErrors "github.com/mlshvsk/go-task-manager/errors"
 	"github.com/mlshvsk/go-task-manager/models"
 	"github.com/mlshvsk/go-task-manager/repositories/base"
-	"sync"
 )
 
 type columnRepository struct {
 	base base.Repository
 }
 
-var ColumnRepository *columnRepository
+func InitColumnRepository(baseRepo base.Repository) *columnRepository {
+	r := &columnRepository{
+		base: baseRepo,
+	}
 
-func InitColumnRepository(baseRepo base.Repository) {
-	(&sync.Once{}).Do(func() {
-		ColumnRepository = &columnRepository{
-			base: baseRepo,
-		}
-
-		ColumnRepository.base.SetTableName("columns")
-	})
+	r.base.SetTableName("columns")
+	return r
 }
 
 func (cr *columnRepository) FindAll(offset int64, limit int64) ([]*models.Column, error) {

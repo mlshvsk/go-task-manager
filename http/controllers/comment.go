@@ -20,7 +20,7 @@ func IndexComments(rw http.ResponseWriter, req *http.Request) *handlers.AppError
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	comments, err := services.GetCommentsByTask(commentId, page, limit)
+	comments, err := services.CommentService.GetCommentsByTask(commentId, page, limit)
 	if err != nil {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
@@ -34,7 +34,7 @@ func ShowComment(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	task, err := services.GetComment(commentId)
+	task, err := services.CommentService.GetComment(commentId)
 	if err != nil {
 		if _, ok := err.(*customErrors.NotFoundError); ok == true {
 			return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
@@ -62,7 +62,7 @@ func StoreComment(rw http.ResponseWriter, req *http.Request) *handlers.AppError 
 	}
 	comment.TaskId = taskId
 
-	if err := services.StoreComment(&comment); err != nil {
+	if err := services.CommentService.StoreComment(&comment); err != nil {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
@@ -81,7 +81,7 @@ func UpdateComment(rw http.ResponseWriter, req *http.Request) *handlers.AppError
 	}
 	comment.Id = id
 
-	if err := services.UpdateComment(&comment); err != nil {
+	if err := services.CommentService.UpdateComment(&comment); err != nil {
 		if _, ok := err.(*customErrors.NotFoundError); ok == true {
 			return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
 		}
@@ -97,7 +97,7 @@ func DeleteComment(rw http.ResponseWriter, req *http.Request) *handlers.AppError
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	if err := services.DeleteComment(id); err != nil {
+	if err := services.CommentService.DeleteComment(id); err != nil {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
