@@ -31,6 +31,7 @@ type TaskService interface {
 	StoreTask(t *Task) error
 	UpdateTask(t *Task) error
 	DeleteTask(taskId int64) error
-	MoveTaskWithinColumn(taskId int64, direction string)
+	MoveTaskWithinColumn(taskId int64, direction string) error
 	MoveTaskToColumn(taskId int64, toColumnId int64) error
+	MoveAllToColumn(fromColumn *Column, toColumn *Column) error
 }

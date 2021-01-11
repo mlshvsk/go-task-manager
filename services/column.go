@@ -12,11 +12,11 @@ type columnService struct {
 	r models.ColumnRepository
 }
 
-var ColumnService columnService
+var ColumnService models.ColumnService
 
 func InitColumnService(r models.ColumnRepository) {
 	(&sync.Once{}).Do(func() {
-		ColumnService = columnService{r}
+		ColumnService = &columnService{r}
 	})
 }
 
@@ -88,11 +88,11 @@ func (s *columnService) DeleteColumn(columnId int64) error {
 		if err != nil {
 			return err
 		} else if nextColumn == nil {
-			return errors.New("cannot find column to move tasks before deletion")
+			return errors.New("cannot find column to move tasks to before deletion")
 		}
 	}
 
-	if err := TaskService.moveAllToColumn(column, nextColumn); err != nil {
+	if err := TaskService.MoveAllToColumn(column, nextColumn); err != nil {
 		return err
 	}
 

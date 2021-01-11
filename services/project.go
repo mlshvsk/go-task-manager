@@ -11,11 +11,11 @@ type projectService struct {
 	r models.ProjectRepository
 }
 
-var ProjectService projectService
+var ProjectService models.ProjectService
 
 func InitProjectService(r models.ProjectRepository) {
 	(&sync.Once{}).Do(func() {
-		ProjectService = projectService{r}
+		ProjectService = &projectService{r}
 	})
 }
 

@@ -11,11 +11,11 @@ type taskService struct {
 	r models.TaskRepository
 }
 
-var TaskService taskService
+var TaskService models.TaskService
 
 func InitTaskService(r models.TaskRepository) {
 	(&sync.Once{}).Do(func() {
-		TaskService = taskService{r}
+		TaskService = &taskService{r}
 	})
 }
 
@@ -145,7 +145,7 @@ func (s *taskService) MoveTaskToColumn(taskId int64, toColumnId int64) error {
 	return s.r.Update(task)
 }
 
-func (s *taskService) moveAllToColumn(fromColumn *models.Column, toColumn *models.Column) error {
+func (s *taskService) MoveAllToColumn(fromColumn *models.Column, toColumn *models.Column) error {
 	tasks, err := s.r.FindAllByColumn(fromColumn.Id, 0, -1)
 	if err != nil {
 		return err

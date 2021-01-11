@@ -10,11 +10,11 @@ type commentService struct {
 	r models.CommentRepository
 }
 
-var CommentService commentService
+var CommentService models.CommentService
 
 func InitCommentService(r models.CommentRepository) {
 	(&sync.Once{}).Do(func() {
-		CommentService = commentService{r}
+		CommentService = &commentService{r}
 	})
 }
 
