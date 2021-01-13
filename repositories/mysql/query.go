@@ -35,7 +35,7 @@ func (q *Query) Update(data map[string]interface{}) base.Query {
 	sort.Strings(keys)
 
 	for _, k := range keys {
-		pl = append(pl, k + "=?")
+		pl = append(pl, k+"=?")
 		q.Values = append(q.Values, data[k])
 	}
 
@@ -84,7 +84,7 @@ func (q *Query) Limit(page int64, limit int64) base.Query {
 		return q
 	}
 
-	q.OffsetClause = fmt.Sprintf("LIMIT %v OFFSET %v", limit, page * limit)
+	q.OffsetClause = fmt.Sprintf("LIMIT %v OFFSET %v", limit, page*limit)
 
 	return q
 }
@@ -110,11 +110,11 @@ func (q *Query) Where(logicalOperator string, data [][]interface{}) base.Query {
 			return q
 		}
 
-		placeholders = append(placeholders, col + operator + "?")
+		placeholders = append(placeholders, col+operator+"?")
 		q.Values = append(q.Values, v[2])
 	}
 
-	q.WhereClause = "WHERE " + strings.Join(placeholders, " " + logicalOperator + " ")
+	q.WhereClause = "WHERE " + strings.Join(placeholders, " "+logicalOperator+" ")
 
 	return q
 }
@@ -150,5 +150,3 @@ func (q *Query) Exec() (sql.Result, error) {
 func (q *Query) CompoundQuery() string {
 	return fmt.Sprintf("%s %s %s %s", q.Main, q.WhereClause, q.OrderByClause, q.OffsetClause)
 }
-
-

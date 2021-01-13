@@ -1,4 +1,4 @@
-package services
+package comment
 
 import (
 	"github.com/mlshvsk/go-task-manager/factories"
@@ -10,11 +10,11 @@ type commentService struct {
 	r models.CommentRepository
 }
 
-var CommentService models.CommentService
+var Service models.CommentService
 
 func InitCommentService(r models.CommentRepository) {
 	(&sync.Once{}).Do(func() {
-		CommentService = &commentService{r}
+		Service = &commentService{r}
 	})
 }
 

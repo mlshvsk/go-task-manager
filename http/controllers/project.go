@@ -5,7 +5,7 @@ import (
 	"github.com/mlshvsk/go-task-manager/http/handlers"
 	"github.com/mlshvsk/go-task-manager/http/helpers"
 	"github.com/mlshvsk/go-task-manager/models"
-	"github.com/mlshvsk/go-task-manager/services"
+	"github.com/mlshvsk/go-task-manager/services/project"
 	"net/http"
 )
 
@@ -18,7 +18,7 @@ func IndexProjects(rw http.ResponseWriter, req *http.Request) *handlers.AppError
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	projects, err := services.ProjectService.GetProjects(page, limit)
+	projects, err := project.Service.GetProjects(page, limit)
 
 	if err != nil {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
@@ -33,7 +33,7 @@ func StoreProject(rw http.ResponseWriter, req *http.Request) *handlers.AppError 
 		return er
 	}
 
-	if err := services.ProjectService.StoreProject(&project); err != nil {
+	if err := project.ProjectService.StoreProject(&project); err != nil {
 		if _, ok := err.(*customErrors.ModelAlreadyExists); ok == true {
 			return &handlers.AppError{Error: err, Message: "Model already exists", ResponseCode: http.StatusBadRequest}
 		}
@@ -50,7 +50,7 @@ func ShowProject(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	project, err := services.ProjectService.GetProject(id)
+	project, err := project.Service.GetProject(id)
 	if err != nil {
 		if _, ok := err.(*customErrors.NotFoundError); ok == true {
 			return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
@@ -74,7 +74,7 @@ func UpdateProject(rw http.ResponseWriter, req *http.Request) *handlers.AppError
 	}
 	project.Id = id
 
-	if err := services.ProjectService.UpdateProject(&project); err != nil {
+	if err := project.ProjectService.UpdateProject(&project); err != nil {
 		if _, ok := err.(*customErrors.NotFoundError); ok == true {
 			return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
 		}
@@ -90,7 +90,7 @@ func DeleteProject(rw http.ResponseWriter, req *http.Request) *handlers.AppError
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	if err := services.ProjectService.DeleteProject(id); err != nil {
+	if err := project.Service.DeleteProject(id); err != nil {
 		if _, ok := err.(*customErrors.NotFoundError); ok == true {
 			return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
 		}

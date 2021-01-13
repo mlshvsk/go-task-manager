@@ -1,4 +1,4 @@
-package repositories
+package column
 
 import (
 	"database/sql"
@@ -21,18 +21,18 @@ func TestFindAllColumnsByProject(t *testing.T) {
 
 	columns := make([]*models.Column, 2)
 	columns[0] = &models.Column{
-		Id: 1,
-		Name: "Test1",
+		Id:        1,
+		Name:      "Test1",
 		ProjectId: int64(1),
-		Position: 1,
+		Position:  1,
 		CreatedAt: time.Now(),
 	}
 
 	columns[1] = &models.Column{
-		Id: 2,
-		Name: "Test2",
+		Id:        2,
+		Name:      "Test2",
 		ProjectId: int64(1),
-		Position: 2,
+		Position:  2,
 		CreatedAt: time.Now(),
 	}
 
@@ -57,10 +57,10 @@ func TestFindColumn(t *testing.T) {
 	repo := getColumnRepository(db)
 
 	column := &models.Column{
-		Id: 1,
-		Name: "Test1",
+		Id:        1,
+		Name:      "Test1",
 		ProjectId: int64(1),
-		Position: 1,
+		Position:  1,
 		CreatedAt: time.Now(),
 	}
 
@@ -84,10 +84,10 @@ func TestFindColumnByNextPosition(t *testing.T) {
 	repo := getColumnRepository(db)
 
 	column := &models.Column{
-		Id: 1,
-		Name: "Test1",
+		Id:        1,
+		Name:      "Test1",
 		ProjectId: int64(1),
-		Position: 20,
+		Position:  20,
 		CreatedAt: time.Now(),
 	}
 
@@ -111,10 +111,10 @@ func TestFindColumnByPreviousPosition(t *testing.T) {
 	repo := getColumnRepository(db)
 
 	column := &models.Column{
-		Id: 1,
-		Name: "Test1",
+		Id:        1,
+		Name:      "Test1",
 		ProjectId: int64(1),
-		Position: 20,
+		Position:  20,
 		CreatedAt: time.Now(),
 	}
 
@@ -138,9 +138,9 @@ func TestCreateColumn(t *testing.T) {
 	repo := getColumnRepository(db)
 
 	column := &models.Column{
-		Name: "Test1",
+		Name:      "Test1",
 		ProjectId: int64(1),
-		Position: 20,
+		Position:  20,
 		CreatedAt: time.Now(),
 	}
 
@@ -176,14 +176,11 @@ func TestDeleteColumn(t *testing.T) {
 }
 
 func getColumnRepository(db *sql.DB) *columnRepository {
-	baseRepo := &mysql.Repository{SqlDB: &database.SqlDB{Conn: db}, TableName: "test"}
+	baseRepo := &mysql.Repository{SqlDB: &database.SqlDB{Conn: db}, TableName: "columns"}
 
-	columnRepository := &columnRepository{
+	return &columnRepository{
 		base: baseRepo,
 	}
-	columnRepository.base.SetTableName("columns")
-
-	return columnRepository
 }
 
 func newMock() (*sql.DB, sqlmock.Sqlmock) {

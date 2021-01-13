@@ -1,10 +1,11 @@
-package services
+package column
 
 import (
 	"errors"
 	customErrors "github.com/mlshvsk/go-task-manager/errors"
 	"github.com/mlshvsk/go-task-manager/factories"
 	"github.com/mlshvsk/go-task-manager/models"
+	"github.com/mlshvsk/go-task-manager/services/task"
 	"sync"
 )
 
@@ -12,11 +13,11 @@ type columnService struct {
 	r models.ColumnRepository
 }
 
-var ColumnService models.ColumnService
+var Service models.ColumnService
 
 func InitColumnService(r models.ColumnRepository) {
 	(&sync.Once{}).Do(func() {
-		ColumnService = &columnService{r}
+		Service = &columnService{r}
 	})
 }
 
@@ -92,7 +93,7 @@ func (s *columnService) DeleteColumn(columnId int64) error {
 		}
 	}
 
-	if err := TaskService.MoveAllToColumn(column, nextColumn); err != nil {
+	if err := task.Service.MoveAllToColumn(column, nextColumn); err != nil {
 		return err
 	}
 

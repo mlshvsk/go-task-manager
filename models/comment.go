@@ -3,10 +3,10 @@ package models
 import "time"
 
 type Comment struct {
-	Id 			int64		`json:"id"`
-	Data 		string		`json:"data" validate:"required,max=5000"`
-	TaskId 		int64		`json:"task_id"`
-	CreatedAt 	time.Time	`json:"created_at"`
+	Id        int64     `json:"id"`
+	Data      string    `json:"data" validate:"required,max=5000"`
+	TaskId    int64     `json:"task_id"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type CommentRepository interface {

@@ -1,9 +1,10 @@
-package services
+package project
 
 import (
 	customErrors "github.com/mlshvsk/go-task-manager/errors"
 	"github.com/mlshvsk/go-task-manager/factories"
 	"github.com/mlshvsk/go-task-manager/models"
+	column2 "github.com/mlshvsk/go-task-manager/services/column"
 	"sync"
 )
 
@@ -11,11 +12,11 @@ type projectService struct {
 	r models.ProjectRepository
 }
 
-var ProjectService models.ProjectService
+var Service models.ProjectService
 
 func InitProjectService(r models.ProjectRepository) {
 	(&sync.Once{}).Do(func() {
-		ProjectService = &projectService{r}
+		Service = &projectService{r}
 	})
 }
 
@@ -50,7 +51,7 @@ func (s *projectService) StoreProject(p *models.Project) error {
 		return err
 	}
 
-	return ColumnService.StoreColumn(&column)
+	return column2.Service.StoreColumn(&column)
 }
 
 func (s *projectService) UpdateProject(p *models.Project) error {

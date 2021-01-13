@@ -25,7 +25,7 @@ type BaseQuery struct {
 	Main          string
 	OrderByClause string
 	WhereClause   string
-	OffsetClause        string
+	OffsetClause  string
 	Values        []interface{}
 	Repository    Repository
 	Error         error

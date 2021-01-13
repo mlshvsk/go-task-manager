@@ -1,4 +1,4 @@
-package repositories
+package comment
 
 import (
 	"database/sql"
@@ -17,7 +17,7 @@ func InitCommentRepository(baseRepo base.Repository) *commentRepository {
 		base: baseRepo,
 	}
 
-	r.base.SetTableName("columns")
+	r.base.SetTableName("comments")
 
 	return r
 }
@@ -28,7 +28,7 @@ func (cr *commentRepository) FindAllByTask(taskId int64, offset int64, limit int
 	err := cr.base.
 		FindAll().
 		Where("and", [][]interface{}{{"task_id", "=", taskId}}).
-		OrderBy("created_at", "desc").
+		OrderBy("created_at", "asc").
 		Limit(offset, limit).
 		Get(cr.scan(&comments))
 
@@ -47,7 +47,7 @@ func (cr *commentRepository) Find(id int64) (*models.Comment, error) {
 		return nil, err
 	}
 
-	if comments == nil || len(comments) == 0 {
+	if len(comments) == 0 {
 		return nil, &customErrors.NotFoundError{Value: "comment not found"}
 	}
 
@@ -66,10 +66,10 @@ func (cr *commentRepository) Create(c *models.Comment) error {
 	return nil
 }
 
-func (cr *commentRepository) Update(t *models.Comment) error {
-	err := cr.base.Update(t.Id, map[string]interface{}{
-		"data": &t.Data,
-		"task_id": &t.TaskId,
+func (cr *commentRepository) Update(c *models.Comment) error {
+	err := cr.base.Update(c.Id, map[string]interface{}{
+		"data":    &c.Data,
+		"task_id": &c.TaskId,
 	})
 
 	if err != nil {

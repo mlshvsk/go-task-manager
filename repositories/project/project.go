@@ -1,4 +1,4 @@
-package repositories
+package project
 
 import (
 	"database/sql"
@@ -40,7 +40,7 @@ func (r *projectRepository) FindAllByName(name string) ([]*models.Project, error
 	err := r.base.
 		FindAll().
 		Where("and", [][]interface{}{{"name", "=", name}}).
-		OrderBy("name", "asc").
+		OrderBy("id", "asc").
 		Get(r.scan(&projects))
 
 	if err != nil {

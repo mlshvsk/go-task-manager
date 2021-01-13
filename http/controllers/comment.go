@@ -5,12 +5,12 @@ import (
 	"github.com/mlshvsk/go-task-manager/http/handlers"
 	"github.com/mlshvsk/go-task-manager/http/helpers"
 	"github.com/mlshvsk/go-task-manager/models"
-	"github.com/mlshvsk/go-task-manager/services"
+	"github.com/mlshvsk/go-task-manager/services/comment"
 	"net/http"
 )
 
 func IndexComments(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
-	commentId, err := helpers.GetId(req, "commentId")
+	taskId, err := helpers.GetId(req, "taskId")
 	if err != nil {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
@@ -20,7 +20,7 @@ func IndexComments(rw http.ResponseWriter, req *http.Request) *handlers.AppError
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	comments, err := services.CommentService.GetCommentsByTask(commentId, page, limit)
+	comments, err := comment.Service.GetCommentsByTask(taskId, page, limit)
 	if err != nil {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
@@ -34,7 +34,7 @@ func ShowComment(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	task, err := services.CommentService.GetComment(commentId)
+	task, err := comment.Service.GetComment(commentId)
 	if err != nil {
 		if _, ok := err.(*customErrors.NotFoundError); ok == true {
 			return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
@@ -62,7 +62,7 @@ func StoreComment(rw http.ResponseWriter, req *http.Request) *handlers.AppError 
 	}
 	comment.TaskId = taskId
 
-	if err := services.CommentService.StoreComment(&comment); err != nil {
+	if err := comment.CommentService.StoreComment(&comment); err != nil {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
@@ -81,7 +81,7 @@ func UpdateComment(rw http.ResponseWriter, req *http.Request) *handlers.AppError
 	}
 	comment.Id = id
 
-	if err := services.CommentService.UpdateComment(&comment); err != nil {
+	if err := comment.CommentService.UpdateComment(&comment); err != nil {
 		if _, ok := err.(*customErrors.NotFoundError); ok == true {
 			return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
 		}
@@ -97,7 +97,7 @@ func DeleteComment(rw http.ResponseWriter, req *http.Request) *handlers.AppError
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	if err := services.CommentService.DeleteComment(id); err != nil {
+	if err := comment.Service.DeleteComment(id); err != nil {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 

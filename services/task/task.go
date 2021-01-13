@@ -1,9 +1,10 @@
-package services
+package task
 
 import (
 	"errors"
 	"github.com/mlshvsk/go-task-manager/factories"
 	"github.com/mlshvsk/go-task-manager/models"
+	"github.com/mlshvsk/go-task-manager/services/column"
 	"sync"
 )
 
@@ -11,11 +12,11 @@ type taskService struct {
 	r models.TaskRepository
 }
 
-var TaskService models.TaskService
+var Service models.TaskService
 
 func InitTaskService(r models.TaskRepository) {
 	(&sync.Once{}).Do(func() {
-		TaskService = &taskService{r}
+		Service = &taskService{r}
 	})
 }
 
@@ -126,7 +127,7 @@ func (s *taskService) MoveTaskToColumn(taskId int64, toColumnId int64) error {
 		return err
 	}
 
-	_, err = ColumnService.GetColumn(toColumnId)
+	_, err = column.Service.GetColumn(toColumnId)
 	if err != nil {
 		return err
 	}

@@ -1,4 +1,4 @@
-package repositories
+package column
 
 import (
 	"github.com/mlshvsk/go-task-manager/models"

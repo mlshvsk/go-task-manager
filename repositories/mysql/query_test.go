@@ -19,7 +19,6 @@ func TestSelect(t *testing.T) {
 	qExpected := getBaseQuery(db)
 	qExpected.Main = "SELECT id, name FROM test"
 
-
 	q.Select([]string{"id", "name"})
 
 	assert.Equal(t, qExpected, q)
@@ -158,10 +157,10 @@ func TestGetQuery(t *testing.T) {
 	expectedQuery := "SELECT id, name FROM test WHERE name=\\? ORDER BY id DESC"
 
 	p := &models.Project{
-		Id: 123,
-		Name: "Test",
+		Id:          123,
+		Name:        "Test",
 		Description: "Test",
-		CreatedAt: time.Now(),
+		CreatedAt:   time.Now(),
 	}
 
 	rows := sqlmock.NewRows([]string{"id", "name", "description", "created_at"}).
@@ -171,7 +170,7 @@ func TestGetQuery(t *testing.T) {
 	err := q.Select([]string{"id", "name"}).
 		Where("and", where).
 		OrderBy("id", "desc").
-		Get(func(rows *sql.Rows) error {callbackArg = 2; return nil})
+		Get(func(rows *sql.Rows) error { callbackArg = 2; return nil })
 
 	assert.NoError(t, err)
 	assert.Equal(t, 2, callbackArg)
@@ -183,10 +182,10 @@ func TestExecQuery(t *testing.T) {
 
 	expectedQuery := regexp.QuoteMeta("INSERT INTO test (created_at, description, name) VALUES (?, ?, ?)")
 	p := &models.Project{
-		Id: 123,
-		Name: "Test",
+		Id:          123,
+		Name:        "Test",
 		Description: "Test",
-		CreatedAt: time.Now(),
+		CreatedAt:   time.Now(),
 	}
 
 	mock.ExpectExec(expectedQuery).
@@ -194,9 +193,9 @@ func TestExecQuery(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	insert := map[string]interface{}{
-		"name": p.Name,
+		"name":        p.Name,
 		"description": p.Description,
-		"created_at": p.CreatedAt,
+		"created_at":  p.CreatedAt,
 	}
 
 	_, err := q.Insert(insert).Exec()

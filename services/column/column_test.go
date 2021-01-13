@@ -1,8 +1,9 @@
-package services
+package column
 
 import (
 	"github.com/mlshvsk/go-task-manager/models"
-	"github.com/mlshvsk/go-task-manager/repositories"
+	"github.com/mlshvsk/go-task-manager/repositories/column"
+	"github.com/mlshvsk/go-task-manager/services/task"
 	"github.com/stretchr/testify/assert"
 	"math/rand"
 	"testing"
@@ -10,17 +11,15 @@ import (
 )
 
 func TestGetColumns(t *testing.T) {
-	cr := repositories.InitColumnRepositoryMock()
+	cr := column.InitColumnRepositoryMock()
 	expectedResult := []*models.Column{
 		{
-			Id: int64(rand.Int()),
+			Id:   int64(rand.Int()),
 			Name: "Test",
-
 		},
 		{
-			Id: int64(rand.Int()),
+			Id:   int64(rand.Int()),
 			Name: "Test2",
-
 		},
 	}
 	expectedProjectId := int64(100)
@@ -35,18 +34,17 @@ func TestGetColumns(t *testing.T) {
 	}
 
 	InitColumnService(cr)
-	res, err := ColumnService.GetColumns(expectedProjectId, expectedPage, expectedLimit)
+	res, err := Service.GetColumns(expectedProjectId, expectedPage, expectedLimit)
 
 	assert.Equal(t, expectedResult, res)
 	assert.Nil(t, err)
 }
 
 func TestGetColumn(t *testing.T) {
-	cr := repositories.InitColumnRepositoryMock()
+	cr := column.InitColumnRepositoryMock()
 	expectedResult := &models.Column{
-		Id: int64(rand.Int()),
+		Id:   int64(rand.Int()),
 		Name: "Test",
-
 	}
 	expectedProjectId := int64(100)
 
@@ -56,19 +54,19 @@ func TestGetColumn(t *testing.T) {
 	}
 
 	InitColumnService(cr)
-	res, err := ColumnService.GetColumn(expectedProjectId)
+	res, err := Service.GetColumn(expectedProjectId)
 
 	assert.Equal(t, expectedResult, res)
 	assert.Nil(t, err)
 }
 
 func TestStoreFirstColumn(t *testing.T) {
-	cr := repositories.InitColumnRepositoryMock()
+	cr := column.InitColumnRepositoryMock()
 	expectedProjectId := int64(100)
 	expectedPosition := int64(0)
 	expectedId := int64(200)
 	model := &models.Column{
-		Name: "Test",
+		Name:      "Test",
 		ProjectId: expectedProjectId,
 	}
 
@@ -87,7 +85,7 @@ func TestStoreFirstColumn(t *testing.T) {
 	}
 
 	InitColumnService(cr)
-	err := ColumnService.StoreColumn(model)
+	err := Service.StoreColumn(model)
 
 	assert.Nil(t, err)
 	assert.NotNil(t, model.CreatedAt)
@@ -96,11 +94,11 @@ func TestStoreFirstColumn(t *testing.T) {
 }
 
 func TestStoreColumnAppendedPosition(t *testing.T) {
-	cr := repositories.InitColumnRepositoryMock()
+	cr := column.InitColumnRepositoryMock()
 	expectedProjectId := int64(100)
 	expectedPosition := int64(100)
 	model := &models.Column{
-		Name: "Test",
+		Name:      "Test",
 		ProjectId: expectedProjectId,
 	}
 
@@ -109,9 +107,9 @@ func TestStoreColumnAppendedPosition(t *testing.T) {
 	}
 	cr.FindWithMaxPositionFunc = func(projectId int64) (*models.Column, error) {
 		maxModel := &models.Column{
-			Name: "Test",
+			Name:      "Test",
 			ProjectId: expectedProjectId,
-			Position: expectedPosition - 1,
+			Position:  expectedPosition - 1,
 		}
 		return maxModel, nil
 	}
@@ -120,29 +118,29 @@ func TestStoreColumnAppendedPosition(t *testing.T) {
 	}
 
 	InitColumnService(cr)
-	err := ColumnService.StoreColumn(model)
+	err := Service.StoreColumn(model)
 
 	assert.Nil(t, err)
 	assert.Equal(t, expectedPosition, model.Position)
 }
 
 func TestUpdateColumn(t *testing.T) {
-	cr := repositories.InitColumnRepositoryMock()
+	cr := column.InitColumnRepositoryMock()
 	expectedId := int64(100)
 	expectedPosition := int64(200)
 	expectedCreatedAt := time.Now()
 	expectedProjectId := int64(100)
 
 	expectedResult := &models.Column{
-		Id: expectedId,
-		Name: "Test2",
+		Id:        expectedId,
+		Name:      "Test2",
 		ProjectId: expectedProjectId,
-		Position: expectedPosition,
+		Position:  expectedPosition,
 		CreatedAt: expectedCreatedAt,
 	}
 
 	updateModel := &models.Column{
-		Id: expectedId,
+		Id:   expectedId,
 		Name: "Test",
 	}
 
@@ -154,7 +152,7 @@ func TestUpdateColumn(t *testing.T) {
 	}
 
 	InitColumnService(cr)
-	err := ColumnService.UpdateColumn(updateModel)
+	err := Service.UpdateColumn(updateModel)
 
 	expectedResult.Name = updateModel.Name
 
@@ -163,10 +161,10 @@ func TestUpdateColumn(t *testing.T) {
 }
 
 func TestDeleteColumn(t *testing.T) {
-	cr := repositories.InitColumnRepositoryMock()
+	cr := column.InitColumnRepositoryMock()
 	expectedResult := &models.Column{
-		Id: int64(rand.Int()),
-		Name: "Test",
+		Id:       int64(rand.Int()),
+		Name:     "Test",
 		Position: int64(rand.Int()),
 	}
 
@@ -188,8 +186,8 @@ func TestDeleteColumn(t *testing.T) {
 
 	cr.FindByNextPositionFunc = func(projectId int64, position int64) (*models.Column, error) {
 		model := &models.Column{
-			Id: int64(rand.Int()),
-			Name: "Test",
+			Id:       int64(rand.Int()),
+			Name:     "Test",
 			Position: position + 1,
 		}
 
@@ -200,14 +198,14 @@ func TestDeleteColumn(t *testing.T) {
 		return nil
 	}
 
-	tsMock := &taskServiceMock{}
+	tsMock := &task.ServiceMock{}
 	tsMock.MoveAllToColumnFunc = func(fromColumn *models.Column, toColumn *models.Column) error {
 		return nil
 	}
-	TaskService = tsMock
+	task.Service = tsMock
 	InitColumnService(cr)
 
-	err := ColumnService.DeleteColumn(expectedResult.Id)
+	err := Service.DeleteColumn(expectedResult.Id)
 
 	assert.Nil(t, err)
 }
@@ -216,19 +214,19 @@ func TestMoveColumnRight(t *testing.T) {
 	expectedId := int64(100)
 	expectedPosition := int64(200)
 	expectedResult := &models.Column{
-		Id: expectedId,
-		Name: "Test",
+		Id:       expectedId,
+		Name:     "Test",
 		Position: expectedPosition,
 	}
 
-	cr := repositories.InitColumnRepositoryMock()
+	cr := column.InitColumnRepositoryMock()
 	cr.FindFunc = func(id int64) (*models.Column, error) {
 		return expectedResult, nil
 	}
 
 	nextExpectedResult := &models.Column{
-		Id: expectedId,
-		Name: "Test",
+		Id:       expectedId,
+		Name:     "Test",
 		Position: expectedPosition + 1,
 	}
 	cr.FindByNextPositionFunc = func(projectId int64, position int64) (*models.Column, error) {
@@ -239,9 +237,9 @@ func TestMoveColumnRight(t *testing.T) {
 	}
 
 	InitColumnService(cr)
-	err := ColumnService.MoveColumn(expectedId, "right")
+	err := Service.MoveColumn(expectedId, "right")
 
 	assert.Nil(t, err)
-	assert.Equal(t, expectedPosition + 1, expectedResult.Position)
+	assert.Equal(t, expectedPosition+1, expectedResult.Position)
 	assert.Equal(t, expectedPosition, nextExpectedResult.Position)
 }

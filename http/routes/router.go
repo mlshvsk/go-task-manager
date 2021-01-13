@@ -33,7 +33,7 @@ func NewRouter() *mux.Router {
 	columns.Handle("/{columnId:[0-9]+}/tasks", handlers.Handler(controllers.IndexTasksByColumn)).Queries("page", "{page:[0-9]+}", "limit", "{limit:[0-9]+}").Methods(http.MethodGet)
 	columns.Handle("/{columnId:[0-9]+}/tasks", handlers.Handler(controllers.StoreTask)).Methods(http.MethodPost)
 
-	tasks := columns.PathPrefix("/tasks").Subrouter()
+	tasks := api.PathPrefix("/tasks").Subrouter()
 
 	tasks.Handle("", handlers.Handler(controllers.IndexTasks)).Queries("page", "{page:[0-9]+}", "limit", "{limit:[0-9]+}").Methods(http.MethodGet)
 	tasks.Handle("/{taskId:[0-9]+}", handlers.Handler(controllers.DeleteTask)).Methods(http.MethodDelete)
@@ -44,7 +44,7 @@ func NewRouter() *mux.Router {
 	tasks.Handle("/{taskId:[0-9]+}/comments", handlers.Handler(controllers.IndexComments)).Queries("page", "{page:[0-9]+}", "limit", "{limit:[0-9]+}").Methods(http.MethodGet)
 	tasks.Handle("/{taskId:[0-9]+}/comments", handlers.Handler(controllers.StoreComment)).Methods(http.MethodPost)
 
-	comments := tasks.PathPrefix("/comments").Subrouter()
+	comments := api.PathPrefix("/comments").Subrouter()
 
 	comments.Handle("/{commentId:[0-9]+}", handlers.Handler(controllers.ShowComment)).Methods(http.MethodGet)
 	comments.Handle("/{commentId:[0-9]+}", handlers.Handler(controllers.UpdateComment)).Methods(http.MethodPut)

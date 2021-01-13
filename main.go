@@ -5,10 +5,16 @@ import (
 	"github.com/mlshvsk/go-task-manager/config"
 	"github.com/mlshvsk/go-task-manager/http/routes"
 	"github.com/mlshvsk/go-task-manager/logger"
-	"github.com/mlshvsk/go-task-manager/repositories"
 	"github.com/mlshvsk/go-task-manager/repositories/base"
+	"github.com/mlshvsk/go-task-manager/repositories/column"
+	"github.com/mlshvsk/go-task-manager/repositories/comment"
 	"github.com/mlshvsk/go-task-manager/repositories/mysql"
-	"github.com/mlshvsk/go-task-manager/services"
+	"github.com/mlshvsk/go-task-manager/repositories/project"
+	"github.com/mlshvsk/go-task-manager/repositories/task"
+	column2 "github.com/mlshvsk/go-task-manager/services/column"
+	comment2 "github.com/mlshvsk/go-task-manager/services/comment"
+	project2 "github.com/mlshvsk/go-task-manager/services/project"
+	task2 "github.com/mlshvsk/go-task-manager/services/task"
 	"log"
 )
 
@@ -27,17 +33,17 @@ func initServices(a *app.App) {
 	logger.InitRequestLogger(a.Config)
 	logger.InitErrorLogger(a.Config)
 
-	cr := repositories.InitCommentRepository(initBaseRepository(a))
-	services.InitCommentService(cr)
+	cr := comment.InitCommentRepository(initBaseRepository(a))
+	comment2.InitCommentService(cr)
 
-	tr := repositories.InitTaskRepository(initBaseRepository(a))
-	services.InitTaskService(tr)
+	tr := task.InitTaskRepository(initBaseRepository(a))
+	task2.InitTaskService(tr)
 
-	colR := repositories.InitColumnRepository(initBaseRepository(a))
-	services.InitColumnService(colR)
+	colR := column.InitColumnRepository(initBaseRepository(a))
+	column2.InitColumnService(colR)
 
-	pr := repositories.InitProjectRepository(initBaseRepository(a))
-	services.InitProjectService(pr)
+	pr := project.InitProjectRepository(initBaseRepository(a))
+	project2.InitProjectService(pr)
 }
 
 func initBaseRepository(a *app.App) base.Repository {

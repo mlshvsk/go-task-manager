@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func LogRequestMiddlewareFunc (next http.Handler) http.Handler {
+func LogRequestMiddlewareFunc(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		logger.RequestLogger.Infow("Incoming request:",
 			"url", r.RequestURI,
@@ -25,4 +25,3 @@ func getBody(r *http.Request) string {
 	r.Body = ioutil.NopCloser(bytes.NewReader(body))
 	return string(body)
 }
-

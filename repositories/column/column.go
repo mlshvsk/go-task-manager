@@ -1,4 +1,4 @@
-package repositories
+package column
 
 import (
 	"database/sql"
@@ -75,7 +75,7 @@ func (cr *columnRepository) Find(id int64) (*models.Column, error) {
 		return nil, err
 	}
 
-	if columns == nil || len(columns) == 0 {
+	if len(columns) == 0 {
 		return nil, &customErrors.NotFoundError{Value: "column not found"}
 	}
 
@@ -95,7 +95,7 @@ func (cr *columnRepository) FindByNextPosition(projectId int64, position int64) 
 		return nil, err
 	}
 
-	if columns == nil || len(columns) == 0 {
+	if len(columns) == 0 {
 		return nil, nil
 	}
 
@@ -115,7 +115,7 @@ func (cr *columnRepository) FindByPreviousPosition(projectId int64, position int
 		return nil, err
 	}
 
-	if columns == nil || len(columns) == 0 {
+	if len(columns) == 0 {
 		return nil, nil
 	}
 

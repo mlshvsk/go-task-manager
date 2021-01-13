@@ -14,8 +14,6 @@ func (e *QueryError) Unwrap() error {
 	return e.Err
 }
 
-
-
 type QueryExecError struct {
 	Value string
 	Query string
@@ -24,7 +22,6 @@ type QueryExecError struct {
 func (e *QueryExecError) Error() string {
 	return fmt.Sprintf("QueryExecutionEror: Error: %v Query %v", e.Value, e.Query)
 }
-
 
 type NotFoundError struct {
 	Value string
@@ -35,7 +32,6 @@ func (e *NotFoundError) Error() string {
 }
 
 type ModelAlreadyExists struct {
-
 }
 
 func (e *ModelAlreadyExists) Error() string {
@@ -43,7 +39,6 @@ func (e *ModelAlreadyExists) Error() string {
 }
 
 type LastModelDeletion struct {
-
 }
 
 func (e *LastModelDeletion) Error() string {
