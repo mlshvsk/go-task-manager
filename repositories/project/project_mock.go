@@ -13,6 +13,10 @@ type projectRepositoryMock struct {
 	DeleteFunc        func(id int64) error
 }
 
+func InitProjectRepositoryMock() *projectRepositoryMock {
+	return &projectRepositoryMock{}
+}
+
 func (r *projectRepositoryMock) FindAll(offset int64, limit int64) ([]*models.Project, error) {
 	return r.FindAllFunc(offset, limit)
 }

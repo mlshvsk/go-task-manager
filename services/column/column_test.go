@@ -3,6 +3,7 @@ package column
 import (
 	"github.com/mlshvsk/go-task-manager/models"
 	"github.com/mlshvsk/go-task-manager/repositories/column"
+	"github.com/mlshvsk/go-task-manager/services"
 	"github.com/mlshvsk/go-task-manager/services/task"
 	"github.com/stretchr/testify/assert"
 	"math/rand"
@@ -34,7 +35,7 @@ func TestGetColumns(t *testing.T) {
 	}
 
 	InitColumnService(cr)
-	res, err := Service.GetColumns(expectedProjectId, expectedPage, expectedLimit)
+	res, err := services.ColumnService.GetColumns(expectedProjectId, expectedPage, expectedLimit)
 
 	assert.Equal(t, expectedResult, res)
 	assert.Nil(t, err)
@@ -54,7 +55,7 @@ func TestGetColumn(t *testing.T) {
 	}
 
 	InitColumnService(cr)
-	res, err := Service.GetColumn(expectedProjectId)
+	res, err := services.ColumnService.GetColumn(expectedProjectId)
 
 	assert.Equal(t, expectedResult, res)
 	assert.Nil(t, err)
@@ -85,7 +86,7 @@ func TestStoreFirstColumn(t *testing.T) {
 	}
 
 	InitColumnService(cr)
-	err := Service.StoreColumn(model)
+	err := services.ColumnService.StoreColumn(model)
 
 	assert.Nil(t, err)
 	assert.NotNil(t, model.CreatedAt)
@@ -118,7 +119,7 @@ func TestStoreColumnAppendedPosition(t *testing.T) {
 	}
 
 	InitColumnService(cr)
-	err := Service.StoreColumn(model)
+	err := services.ColumnService.StoreColumn(model)
 
 	assert.Nil(t, err)
 	assert.Equal(t, expectedPosition, model.Position)
@@ -152,7 +153,7 @@ func TestUpdateColumn(t *testing.T) {
 	}
 
 	InitColumnService(cr)
-	err := Service.UpdateColumn(updateModel)
+	err := services.ColumnService.UpdateColumn(updateModel)
 
 	expectedResult.Name = updateModel.Name
 
@@ -202,10 +203,10 @@ func TestDeleteColumn(t *testing.T) {
 	tsMock.MoveAllToColumnFunc = func(fromColumn *models.Column, toColumn *models.Column) error {
 		return nil
 	}
-	task.Service = tsMock
+	services.TaskService = tsMock
 	InitColumnService(cr)
 
-	err := Service.DeleteColumn(expectedResult.Id)
+	err := services.ColumnService.DeleteColumn(expectedResult.Id)
 
 	assert.Nil(t, err)
 }
@@ -237,7 +238,7 @@ func TestMoveColumnRight(t *testing.T) {
 	}
 
 	InitColumnService(cr)
-	err := Service.MoveColumn(expectedId, "right")
+	err := services.ColumnService.MoveColumn(expectedId, "right")
 
 	assert.Nil(t, err)
 	assert.Equal(t, expectedPosition+1, expectedResult.Position)

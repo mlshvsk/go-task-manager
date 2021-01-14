@@ -5,7 +5,7 @@ import (
 	"github.com/mlshvsk/go-task-manager/http/handlers"
 	"github.com/mlshvsk/go-task-manager/http/helpers"
 	"github.com/mlshvsk/go-task-manager/models"
-	"github.com/mlshvsk/go-task-manager/services/column"
+	"github.com/mlshvsk/go-task-manager/services"
 	"net/http"
 )
 
@@ -20,7 +20,7 @@ func IndexColumns(rw http.ResponseWriter, req *http.Request) *handlers.AppError 
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	columns, err := column.Service.GetColumns(projectId, page, limit)
+	columns, err := services.ColumnService.GetColumns(projectId, page, limit)
 	if err != nil {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
@@ -34,7 +34,7 @@ func ShowColumn(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	column, err := column.Service.GetColumn(columnId)
+	column, err := services.ColumnService.GetColumn(columnId)
 	if err != nil {
 		if _, ok := err.(*customErrors.NotFoundError); ok == true {
 			return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
@@ -58,7 +58,7 @@ func StoreColumn(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 	}
 	column.ProjectId = projectId
 
-	if err := column.ColumnService.StoreColumn(&column); err != nil {
+	if err := services.ColumnService.StoreColumn(&column); err != nil {
 		if _, ok := err.(*customErrors.ModelAlreadyExists); ok == true {
 			return &handlers.AppError{Error: err, Message: "Model already exists", ResponseCode: http.StatusBadRequest}
 		}
@@ -75,7 +75,7 @@ func DeleteColumn(rw http.ResponseWriter, req *http.Request) *handlers.AppError 
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	if err := column.Service.DeleteColumn(id); err != nil {
+	if err := services.ColumnService.DeleteColumn(id); err != nil {
 		if _, ok := err.(*customErrors.LastModelDeletion); ok == true {
 			return &handlers.AppError{Error: err, Message: "Cannot delete last project column", ResponseCode: http.StatusBadRequest}
 		}
@@ -102,7 +102,7 @@ func UpdateColumn(rw http.ResponseWriter, req *http.Request) *handlers.AppError 
 	}
 	column.Id = id
 
-	if err := column.ColumnService.UpdateColumn(&column); err != nil {
+	if err := services.ColumnService.UpdateColumn(&column); err != nil {
 		if _, ok := err.(*customErrors.NotFoundError); ok == true {
 			return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
 		}
@@ -125,7 +125,7 @@ func MoveColumn(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
 	}
 
-	if err := column.Service.MoveColumn(id, body.Direction); err != nil {
+	if err := services.ColumnService.MoveColumn(id, body.Direction); err != nil {
 		if _, ok := err.(*customErrors.NotFoundError); ok == true {
 			return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
 		}

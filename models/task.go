@@ -14,7 +14,7 @@ type Task struct {
 type TaskRepository interface {
 	FindAll(offset int64, limit int64) ([]*Task, error)
 	FindAllByColumn(columnId int64, offset int64, limit int64) ([]*Task, error)
-	FindAllByColumnAndName(columnId int64, name string, offset int64) ([]*Task, error)
+	FindAllByColumnAndName(columnId int64, name string, offset int64, limit int64) ([]*Task, error)
 	Find(id int64) (*Task, error)
 	FindWithMaxPosition(columnId int64) (*Task, error)
 	FindByNextPosition(columnId int64, position int64) (*Task, error)

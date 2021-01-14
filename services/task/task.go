@@ -4,7 +4,7 @@ import (
 	"errors"
 	"github.com/mlshvsk/go-task-manager/factories"
 	"github.com/mlshvsk/go-task-manager/models"
-	"github.com/mlshvsk/go-task-manager/services/column"
+	"github.com/mlshvsk/go-task-manager/services"
 	"sync"
 )
 
@@ -12,11 +12,9 @@ type taskService struct {
 	r models.TaskRepository
 }
 
-var Service models.TaskService
-
 func InitTaskService(r models.TaskRepository) {
 	(&sync.Once{}).Do(func() {
-		Service = &taskService{r}
+		services.TaskService = &taskService{r}
 	})
 }
 
@@ -90,8 +88,7 @@ func (s *taskService) MoveTaskWithinColumn(taskId int64, direction string) error
 			return nil
 		}
 
-		nextTask.Position--
-		task.Position++
+		nextTask.Position, task.Position = task.Position, nextTask.Position
 
 		s.r.Update(nextTask)
 		s.r.Update(task)
@@ -105,8 +102,7 @@ func (s *taskService) MoveTaskWithinColumn(taskId int64, direction string) error
 			return nil
 		}
 
-		nextTask.Position++
-		task.Position--
+		nextTask.Position, task.Position = task.Position, nextTask.Position
 
 		s.r.Update(nextTask)
 		s.r.Update(task)
@@ -127,7 +123,7 @@ func (s *taskService) MoveTaskToColumn(taskId int64, toColumnId int64) error {
 		return err
 	}
 
-	_, err = column.Service.GetColumn(toColumnId)
+	_, err = services.ColumnService.GetColumn(toColumnId)
 	if err != nil {
 		return err
 	}

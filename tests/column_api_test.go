@@ -7,6 +7,7 @@ import (
 	"github.com/mlshvsk/go-task-manager/http/routes"
 	"github.com/mlshvsk/go-task-manager/logger"
 	"github.com/mlshvsk/go-task-manager/models"
+	"github.com/mlshvsk/go-task-manager/services"
 	"github.com/mlshvsk/go-task-manager/services/column"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap/zaptest"
@@ -22,7 +23,7 @@ func TestGetColumnById(t *testing.T) {
 	f := func(columnId int64) (*models.Column, error) {
 		return expectedColumn, nil
 	}
-	column.Service = &column.ServiceMock{GetColumnFunc: f}
+	services.ColumnService = &column.ServiceMock{GetColumnFunc: f}
 
 	router := routes.NewRouter()
 	r, err := http.NewRequest("GET", "/api/v1/columns/1", bytes.NewBuffer([]byte{0}))
@@ -51,7 +52,7 @@ func TestGetColumns(t *testing.T) {
 		assert.Equal(t, int64(10), limit)
 		return expectedColumns, nil
 	}
-	column.Service = &column.ServiceMock{GetColumnsFunc: f}
+	services.ColumnService = &column.ServiceMock{GetColumnsFunc: f}
 
 	router := routes.NewRouter()
 	r, err := http.NewRequest("GET", "/api/v1/projects/1/columns?page=2&limit=10", bytes.NewBuffer([]byte{0}))
@@ -88,7 +89,7 @@ func TestPostColumn(t *testing.T) {
 		c.CreatedAt = expectedTime
 		return nil
 	}
-	column.Service = &column.ServiceMock{StoreColumnFunc: f}
+	services.ColumnService = &column.ServiceMock{StoreColumnFunc: f}
 
 	req, err := json.Marshal(postColumn)
 	assert.Nil(t, err)

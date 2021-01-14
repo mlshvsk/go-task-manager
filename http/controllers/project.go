@@ -5,7 +5,7 @@ import (
 	"github.com/mlshvsk/go-task-manager/http/handlers"
 	"github.com/mlshvsk/go-task-manager/http/helpers"
 	"github.com/mlshvsk/go-task-manager/models"
-	"github.com/mlshvsk/go-task-manager/services/project"
+	"github.com/mlshvsk/go-task-manager/services"
 	"net/http"
 )
 
@@ -18,7 +18,7 @@ func IndexProjects(rw http.ResponseWriter, req *http.Request) *handlers.AppError
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	projects, err := project.Service.GetProjects(page, limit)
+	projects, err := services.ProjectService.GetProjects(page, limit)
 
 	if err != nil {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
@@ -28,12 +28,12 @@ func IndexProjects(rw http.ResponseWriter, req *http.Request) *handlers.AppError
 }
 
 func StoreProject(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
-	var project models.Project
-	if er := helpers.RetrieveModel(req.Body, &project); er != nil {
+	var projectModel models.Project
+	if er := helpers.RetrieveModel(req.Body, &projectModel); er != nil {
 		return er
 	}
 
-	if err := project.ProjectService.StoreProject(&project); err != nil {
+	if err := services.ProjectService.StoreProject(&projectModel); err != nil {
 		if _, ok := err.(*customErrors.ModelAlreadyExists); ok == true {
 			return &handlers.AppError{Error: err, Message: "Model already exists", ResponseCode: http.StatusBadRequest}
 		}
@@ -41,7 +41,7 @@ func StoreProject(rw http.ResponseWriter, req *http.Request) *handlers.AppError 
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	return helpers.PrepareResponse(rw, project)
+	return helpers.PrepareResponse(rw, projectModel)
 }
 
 func ShowProject(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
@@ -50,7 +50,7 @@ func ShowProject(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	project, err := project.Service.GetProject(id)
+	p, err := services.ProjectService.GetProject(id)
 	if err != nil {
 		if _, ok := err.(*customErrors.NotFoundError); ok == true {
 			return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
@@ -59,7 +59,7 @@ func ShowProject(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	return helpers.PrepareResponse(rw, project)
+	return helpers.PrepareResponse(rw, p)
 }
 
 func UpdateProject(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
@@ -68,20 +68,20 @@ func UpdateProject(rw http.ResponseWriter, req *http.Request) *handlers.AppError
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	var project models.Project
-	if er := helpers.RetrieveModel(req.Body, &project); er != nil {
+	var projectModel models.Project
+	if er := helpers.RetrieveModel(req.Body, &projectModel); er != nil {
 		return er
 	}
-	project.Id = id
+	projectModel.Id = id
 
-	if err := project.ProjectService.UpdateProject(&project); err != nil {
+	if err := services.ProjectService.UpdateProject(&projectModel); err != nil {
 		if _, ok := err.(*customErrors.NotFoundError); ok == true {
 			return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
 		}
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	return helpers.PrepareResponse(rw, project)
+	return helpers.PrepareResponse(rw, projectModel)
 }
 
 func DeleteProject(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
@@ -90,7 +90,7 @@ func DeleteProject(rw http.ResponseWriter, req *http.Request) *handlers.AppError
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	if err := project.Service.DeleteProject(id); err != nil {
+	if err := services.ProjectService.DeleteProject(id); err != nil {
 		if _, ok := err.(*customErrors.NotFoundError); ok == true {
 			return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
 		}

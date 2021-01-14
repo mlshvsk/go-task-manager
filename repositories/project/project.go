@@ -71,13 +71,11 @@ func (r *projectRepository) Create(p *models.Project) error {
 	data["created_at"] = &p.CreatedAt
 
 	id, err := r.base.Create(data)
-
 	if err != nil {
 		return err
 	}
 
 	p.Id = id
-
 	return nil
 }
 

@@ -5,7 +5,7 @@ import (
 	customErrors "github.com/mlshvsk/go-task-manager/errors"
 	"github.com/mlshvsk/go-task-manager/factories"
 	"github.com/mlshvsk/go-task-manager/models"
-	"github.com/mlshvsk/go-task-manager/services/task"
+	"github.com/mlshvsk/go-task-manager/services"
 	"sync"
 )
 
@@ -13,11 +13,9 @@ type columnService struct {
 	r models.ColumnRepository
 }
 
-var Service models.ColumnService
-
 func InitColumnService(r models.ColumnRepository) {
 	(&sync.Once{}).Do(func() {
-		Service = &columnService{r}
+		services.ColumnService = &columnService{r}
 	})
 }
 
@@ -80,7 +78,6 @@ func (s *columnService) DeleteColumn(columnId int64) error {
 		return errors.New("cannot delete last column")
 	}
 
-	//TODO: rewrite it, its bullshit
 	nextColumn, err := s.r.FindByNextPosition(column.ProjectId, column.Position)
 	if err != nil {
 		return err
@@ -93,7 +90,7 @@ func (s *columnService) DeleteColumn(columnId int64) error {
 		}
 	}
 
-	if err := task.Service.MoveAllToColumn(column, nextColumn); err != nil {
+	if err := services.TaskService.MoveAllToColumn(column, nextColumn); err != nil {
 		return err
 	}
 

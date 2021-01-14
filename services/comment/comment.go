@@ -3,6 +3,7 @@ package comment
 import (
 	"github.com/mlshvsk/go-task-manager/factories"
 	"github.com/mlshvsk/go-task-manager/models"
+	"github.com/mlshvsk/go-task-manager/services"
 	"sync"
 )
 
@@ -10,11 +11,9 @@ type commentService struct {
 	r models.CommentRepository
 }
 
-var Service models.CommentService
-
 func InitCommentService(r models.CommentRepository) {
 	(&sync.Once{}).Do(func() {
-		Service = &commentService{r}
+		services.CommentService = &commentService{r}
 	})
 }
 

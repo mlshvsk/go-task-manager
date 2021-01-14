@@ -12,6 +12,10 @@ type commentRepositoryMock struct {
 	DeleteFunc        func(id int64) error
 }
 
+func InitCommentRepositoryMock() *commentRepositoryMock {
+	return &commentRepositoryMock{}
+}
+
 func (cr *commentRepositoryMock) FindAllByTask(taskId int64, offset int64, limit int64) ([]*models.Comment, error) {
 	return cr.FindAllByTaskFunc(taskId, offset, limit)
 }
