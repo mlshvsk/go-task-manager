@@ -31,7 +31,7 @@ func TestFindAllCommentsByTask(t *testing.T) {
 		CreatedAt: time.Now(),
 	}
 
-	query := regexp.QuoteMeta("SELECT * FROM comments WHERE task_id=? ORDER BY created_at ASC")
+	query := regexp.QuoteMeta("SELECT * FROM comments WHERE task_id=? ORDER BY created_at DESC")
 
 	rows := sqlmock.NewRows([]string{"id", "data", "task_id", "created_at"}).
 		AddRow(comments[0].Id, comments[0].Data, comments[0].TaskId, comments[0].CreatedAt).
