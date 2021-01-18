@@ -28,7 +28,7 @@ func (cr *commentRepository) FindAllByTask(taskId int64, offset int64, limit int
 	err := cr.base.
 		FindAll().
 		Where("and", [][]interface{}{{"task_id", "=", taskId}}).
-		OrderBy("created_at", "asc").
+		OrderBy("created_at", "desc").
 		Limit(offset, limit).
 		Get(cr.scan(&comments))
 

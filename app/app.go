@@ -6,10 +6,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/mlshvsk/go-task-manager/config"
-	//"github.com/mlshvsk/go-task-manager/database"
+	"github.com/rs/cors"
 )
 
 type App struct {
@@ -31,7 +30,8 @@ func (app *App) Run(r *mux.Router) {
 	port := app.Config.Port
 	addr := fmt.Sprintf(":%v", port)
 	fmt.Printf("APP is listening on port: %d\n", port)
-	log.Fatal(http.ListenAndServe(addr, handlers.CORS()(r)))
+	handler := cors.Default().Handler(r)
+	log.Fatal(http.ListenAndServe(addr, handler))
 }
 
 func (app *App) IsProd() bool {

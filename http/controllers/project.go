@@ -4,6 +4,7 @@ import (
 	customErrors "github.com/mlshvsk/go-task-manager/errors"
 	"github.com/mlshvsk/go-task-manager/http/handlers"
 	"github.com/mlshvsk/go-task-manager/http/helpers"
+	"github.com/mlshvsk/go-task-manager/http/transformers"
 	"github.com/mlshvsk/go-task-manager/models"
 	"github.com/mlshvsk/go-task-manager/services"
 	"net/http"
@@ -24,7 +25,12 @@ func IndexProjects(rw http.ResponseWriter, req *http.Request) *handlers.AppError
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	return helpers.PrepareResponse(rw, projects)
+	res, err := transformers.ExtendProjects(projects, req.URL.Query().Get("include_columns"))
+	if err != nil {
+		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
+	}
+
+	return helpers.PrepareResponse(rw, res)
 }
 
 func StoreProject(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
@@ -59,7 +65,12 @@ func ShowProject(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	return helpers.PrepareResponse(rw, p)
+	res, err := transformers.ExtendProject(p, req.URL.Query().Get("include_columns"))
+	if err != nil {
+		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
+	}
+
+	return helpers.PrepareResponse(rw, res)
 }
 
 func UpdateProject(rw http.ResponseWriter, req *http.Request) *handlers.AppError {

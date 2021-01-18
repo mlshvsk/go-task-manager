@@ -4,6 +4,7 @@ import (
 	customErrors "github.com/mlshvsk/go-task-manager/errors"
 	"github.com/mlshvsk/go-task-manager/http/handlers"
 	"github.com/mlshvsk/go-task-manager/http/helpers"
+	"github.com/mlshvsk/go-task-manager/http/transformers"
 	"github.com/mlshvsk/go-task-manager/models"
 	"github.com/mlshvsk/go-task-manager/services"
 	"net/http"
@@ -25,7 +26,12 @@ func IndexColumns(rw http.ResponseWriter, req *http.Request) *handlers.AppError 
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	return helpers.PrepareResponse(rw, columns)
+	res, err := transformers.ExtendColumns(columns, req.URL.Query().Get("include_tasks"))
+	if err != nil {
+		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
+	}
+
+	return helpers.PrepareResponse(rw, res)
 }
 
 func ShowColumn(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
@@ -43,7 +49,12 @@ func ShowColumn(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	return helpers.PrepareResponse(rw, column)
+	res, err := transformers.ExtendColumn(column, req.URL.Query().Get("include_tasks"))
+	if err != nil {
+		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
+	}
+
+	return helpers.PrepareResponse(rw, res)
 }
 
 func StoreColumn(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
