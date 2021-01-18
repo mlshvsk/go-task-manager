@@ -134,6 +134,10 @@ func (cr *columnRepository) FindWithMaxPosition(projectId int64) (*models.Column
 		return nil, err
 	}
 
+	if len(columns) == 0 {
+		return nil, nil
+	}
+
 	return columns[0], nil
 }
 

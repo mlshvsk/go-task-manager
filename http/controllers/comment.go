@@ -54,11 +54,7 @@ func StoreComment(rw http.ResponseWriter, req *http.Request) *handlers.AppError 
 
 	var comment models.Comment
 	if er := helpers.RetrieveModel(req.Body, &comment); er != nil {
-		if _, ok := err.(*customErrors.ModelAlreadyExists); ok == true {
-			return &handlers.AppError{Error: err, Message: "Model already exists", ResponseCode: http.StatusBadRequest}
-		}
-
-		return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
+		return er
 	}
 	comment.TaskId = taskId
 
@@ -77,7 +73,7 @@ func UpdateComment(rw http.ResponseWriter, req *http.Request) *handlers.AppError
 	}
 
 	if er := helpers.RetrieveModel(req.Body, &comment); er != nil {
-		return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
+		return er
 	}
 	comment.Id = id
 

@@ -50,15 +50,15 @@ func StoreTask(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 
 	var task models.Task
 	if er := helpers.RetrieveModel(req.Body, &task); er != nil {
-		if _, ok := err.(*customErrors.ModelAlreadyExists); ok == true {
-			return &handlers.AppError{Error: err, Message: "Model already exists", ResponseCode: http.StatusBadRequest}
-		}
-
-		return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
+		return er
 	}
 	task.ColumnId = columnId
 
 	if err := services.TaskService.StoreTask(&task); err != nil {
+		if _, ok := err.(*customErrors.ModelAlreadyExists); ok == true {
+			return &handlers.AppError{Error: err, Message: "Model already exists", ResponseCode: http.StatusBadRequest}
+		}
+
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
@@ -91,7 +91,7 @@ func UpdateTask(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 	}
 
 	if er := helpers.RetrieveModel(req.Body, &task); er != nil {
-		return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
+		return er
 	}
 	task.Id = id
 
@@ -112,10 +112,10 @@ func MoveTask(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 	}
 
 	body := struct {
-		Direction string `json:"direction"`
+		Direction string `json:"direction" validate:"required,oneof=up down"`
 	}{}
 	if er := helpers.RetrieveModel(req.Body, &body); er != nil {
-		return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
+		return er
 	}
 
 	if err := services.TaskService.MoveTaskWithinColumn(id, body.Direction); err != nil {

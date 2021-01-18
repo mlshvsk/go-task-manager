@@ -11,10 +11,10 @@ import (
 	"github.com/mlshvsk/go-task-manager/repositories/mysql"
 	"github.com/mlshvsk/go-task-manager/repositories/project"
 	"github.com/mlshvsk/go-task-manager/repositories/task"
-	column2 "github.com/mlshvsk/go-task-manager/services/column"
-	comment2 "github.com/mlshvsk/go-task-manager/services/comment"
-	project2 "github.com/mlshvsk/go-task-manager/services/project"
-	task2 "github.com/mlshvsk/go-task-manager/services/task"
+	columnService "github.com/mlshvsk/go-task-manager/services/column"
+	commentService "github.com/mlshvsk/go-task-manager/services/comment"
+	projectService "github.com/mlshvsk/go-task-manager/services/project"
+	taskService "github.com/mlshvsk/go-task-manager/services/task"
 	"log"
 )
 
@@ -34,16 +34,16 @@ func initServices(a *app.App) {
 	logger.InitErrorLogger(a.Config)
 
 	cr := comment.InitCommentRepository(initBaseRepository(a))
-	comment2.InitCommentService(cr)
+	commentService.InitCommentService(cr)
 
 	tr := task.InitTaskRepository(initBaseRepository(a))
-	task2.InitTaskService(tr)
+	taskService.InitTaskService(tr)
 
 	colR := column.InitColumnRepository(initBaseRepository(a))
-	column2.InitColumnService(colR)
+	columnService.InitColumnService(colR)
 
 	pr := project.InitProjectRepository(initBaseRepository(a))
-	project2.InitProjectService(pr)
+	projectService.InitProjectService(pr)
 }
 
 func initBaseRepository(a *app.App) base.Repository {

@@ -5,12 +5,10 @@ import (
 	"encoding/json"
 	"github.com/mlshvsk/go-task-manager/http/helpers"
 	"github.com/mlshvsk/go-task-manager/http/routes"
-	"github.com/mlshvsk/go-task-manager/logger"
 	"github.com/mlshvsk/go-task-manager/models"
 	"github.com/mlshvsk/go-task-manager/services"
 	"github.com/mlshvsk/go-task-manager/services/column"
 	"github.com/stretchr/testify/assert"
-	"go.uber.org/zap/zaptest"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -18,7 +16,7 @@ import (
 )
 
 func TestGetColumnById(t *testing.T) {
-	initLoggers(t)
+	InitLoggers(t)
 	expectedColumn := &models.Column{Id: 1, Name: "Test"}
 	f := func(columnId int64) (*models.Column, error) {
 		return expectedColumn, nil
@@ -35,14 +33,14 @@ func TestGetColumnById(t *testing.T) {
 	res, err := helpers.RequestBody(w.Result().Body)
 	assert.Nil(t, err)
 
-	expectedRes, err := expectedOkResponse(expectedColumn)
+	expectedRes, err := ExpectedOkResponse(expectedColumn)
 	assert.Nil(t, err)
 
 	assert.Equal(t, string(expectedRes)+"\n", string(res))
 }
 
 func TestGetColumns(t *testing.T) {
-	initLoggers(t)
+	InitLoggers(t)
 	expectedColumns := make([]*models.Column, 2)
 	expectedColumns[0] = &models.Column{Id: 1, Name: "Test"}
 	expectedColumns[1] = &models.Column{Id: 2, Name: "Test2"}
@@ -64,14 +62,14 @@ func TestGetColumns(t *testing.T) {
 	res, err := helpers.RequestBody(w.Result().Body)
 	assert.Nil(t, err)
 
-	expectedRes, err := expectedOkResponse(expectedColumns)
+	expectedRes, err := ExpectedOkResponse(expectedColumns)
 	assert.Nil(t, err)
 
 	assert.Equal(t, string(expectedRes)+"\n", string(res))
 }
 
 func TestPostColumn(t *testing.T) {
-	initLoggers(t)
+	InitLoggers(t)
 	expectedTime := time.Now()
 	expectedId := int64(100)
 	expectedName := "Test"
@@ -104,21 +102,8 @@ func TestPostColumn(t *testing.T) {
 	res, err := helpers.RequestBody(w.Result().Body)
 	assert.Nil(t, err)
 
-	expectedRes, err := expectedOkResponse(expectedColumn)
+	expectedRes, err := ExpectedOkResponse(expectedColumn)
 	assert.Nil(t, err)
 
 	assert.Equal(t, string(expectedRes)+"\n", string(res))
-}
-
-func initLoggers(t *testing.T) {
-	logger.RequestLogger = zaptest.NewLogger(t).Sugar()
-	logger.ErrorLogger = zaptest.NewLogger(t).Sugar()
-}
-
-func expectedOkResponse(data interface{}) ([]byte, error) {
-	responseStruct := &struct {
-		Data interface{} `json:"data"`
-	}{Data: data}
-
-	return json.Marshal(responseStruct)
 }

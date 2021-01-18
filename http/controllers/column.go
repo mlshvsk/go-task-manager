@@ -54,7 +54,7 @@ func StoreColumn(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 
 	var column models.Column
 	if er := helpers.RetrieveModel(req.Body, &column); er != nil {
-		return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
+		return er
 	}
 	column.ProjectId = projectId
 
@@ -98,7 +98,7 @@ func UpdateColumn(rw http.ResponseWriter, req *http.Request) *handlers.AppError 
 
 	var column models.Column
 	if er := helpers.RetrieveModel(req.Body, &column); er != nil {
-		return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
+		return er
 	}
 	column.Id = id
 
@@ -119,10 +119,10 @@ func MoveColumn(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 	}
 
 	body := struct {
-		Direction string `json:"direction"`
+		Direction string `json:"direction" validate:"required,oneof=left right"`
 	}{}
 	if er := helpers.RetrieveModel(req.Body, &body); er != nil {
-		return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
+		return er
 	}
 
 	if err := services.ColumnService.MoveColumn(id, body.Direction); err != nil {

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/mlshvsk/go-task-manager/logger"
 	"net/http"
 )
@@ -16,6 +17,7 @@ type AppError struct {
 
 func (fn Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if e := fn(w, r); e != nil {
+		fmt.Println(e)
 		logger.ErrorLogger.Error(e.Error.Error())
 
 		if e.Message == "" {

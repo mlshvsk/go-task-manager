@@ -31,7 +31,7 @@ func (s *projectService) StoreProject(p *models.Project) error {
 	if err != nil {
 		return err
 	}
-	if projects != nil && len(projects) > 0 {
+	if len(projects) > 0 {
 		return &customErrors.ModelAlreadyExists{}
 	}
 
