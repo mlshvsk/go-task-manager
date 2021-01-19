@@ -9,6 +9,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strconv"
 )
 
@@ -30,28 +31,54 @@ func RequestVar(req *http.Request, key string) (string, bool) {
 	return val, ok
 }
 
-func GetPagination(req *http.Request) (int64, int64, error) {
-	limit, ok := RequestVar(req, "limit")
-	if ok == false {
-		return 0, 0, errors.New("limit is not found in request")
-	}
-
-	page, ok := RequestVar(req, "page")
-	if ok == false {
-		return 0, 0, errors.New("page is not found in request")
-	}
-
-	limitParsed, err := strconv.ParseInt(limit, 10, 64)
+func GetPagination(req *http.Request) (int64, int64, *handlers.AppError) {
+	query := req.URL.Query()
+	page, err := getPage(query)
 	if err != nil {
-		return 0, 0, errors.New("cannot parse limit")
+		return 0, 0, &handlers.AppError{Error: err, Message: "Invalid page parameter", ResponseCode: http.StatusBadRequest}
 	}
-
-	pageParsed, err := strconv.ParseInt(page, 10, 64)
+	limit, err := getLimit(query)
 	if err != nil {
-		return 0, 0, errors.New("cannot parse page")
+		return 0, 0, &handlers.AppError{Error: err, Message: "Invalid limit parameter", ResponseCode: http.StatusBadRequest}
 	}
 
-	return pageParsed, limitParsed, nil
+	return page, limit, nil
+}
+
+func getPage(query url.Values) (int64, error) {
+	pageParam := query.Get("page")
+
+	if len(pageParam) == 0 {
+		return 0, nil
+	}
+
+	pageParsed, err := strconv.ParseInt(pageParam, 10, 64)
+	if err != nil {
+		return 0, errors.New("cannot parse page parameter")
+	}
+	if pageParsed <= 0 {
+		return 0, errors.New("invalid page number")
+	}
+
+	return pageParsed - 1, nil
+}
+
+func getLimit(query url.Values) (int64, error) {
+	limitParam := query.Get("limit")
+
+	if len(limitParam) == 0 {
+		return 10, nil
+	}
+
+	limitParsed, err := strconv.ParseInt(limitParam, 10, 64)
+	if err != nil {
+		return 0, errors.New("cannot parse limit parameter")
+	}
+	if limitParsed <= 0 {
+		return 0, errors.New("invalid limit number")
+	}
+
+	return limitParsed, nil
 }
 
 func GetId(req *http.Request, idString string) (int64, error) {

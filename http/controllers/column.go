@@ -16,9 +16,9 @@ func IndexColumns(rw http.ResponseWriter, req *http.Request) *handlers.AppError 
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	page, limit, err := helpers.GetPagination(req)
-	if err != nil {
-		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
+	page, limit, e := helpers.GetPagination(req)
+	if e != nil {
+		return e
 	}
 
 	columns, err := services.ColumnService.GetColumns(projectId, page, limit)

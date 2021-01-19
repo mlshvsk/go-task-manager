@@ -14,9 +14,9 @@ type ProjectController struct {
 }
 
 func IndexProjects(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
-	page, limit, err := helpers.GetPagination(req)
-	if err != nil {
-		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
+	page, limit, e := helpers.GetPagination(req)
+	if e != nil {
+		return e
 	}
 
 	projects, err := services.ProjectService.GetProjects(page, limit)

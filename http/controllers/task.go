@@ -15,9 +15,9 @@ func IndexTasksByColumn(rw http.ResponseWriter, req *http.Request) *handlers.App
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	page, limit, err := helpers.GetPagination(req)
-	if err != nil {
-		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
+	page, limit, e := helpers.GetPagination(req)
+	if e != nil {
+		return e
 	}
 
 	tasks, err := services.TaskService.GetTasksByColumn(columnId, page, limit)
@@ -29,9 +29,9 @@ func IndexTasksByColumn(rw http.ResponseWriter, req *http.Request) *handlers.App
 }
 
 func IndexTasks(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
-	page, limit, err := helpers.GetPagination(req)
-	if err != nil {
-		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
+	page, limit, e := helpers.GetPagination(req)
+	if e != nil {
+		return e
 	}
 
 	tasks, err := services.TaskService.GetTasks(page, limit)
