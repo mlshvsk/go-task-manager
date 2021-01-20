@@ -112,8 +112,7 @@ func (s *columnService) MoveColumn(columnId int64, direction string) error {
 			return nil
 		}
 
-		nextColumn.Position--
-		column.Position++
+		nextColumn.Position, column.Position = column.Position, nextColumn.Position
 	} else if direction == "left" {
 		nextColumn, err = s.r.FindByPreviousPosition(column.ProjectId, column.Position)
 		if err != nil {
@@ -122,8 +121,7 @@ func (s *columnService) MoveColumn(columnId int64, direction string) error {
 			return nil
 		}
 
-		nextColumn.Position++
-		column.Position--
+		nextColumn.Position, column.Position = column.Position, nextColumn.Position
 	} else {
 		return errors.New("invalid direction: " + direction)
 	}

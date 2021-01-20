@@ -89,9 +89,6 @@ func (s *taskService) MoveTaskWithinColumn(taskId int64, direction string) error
 		}
 
 		nextTask.Position, task.Position = task.Position, nextTask.Position
-
-		s.r.Update(nextTask)
-		s.r.Update(task)
 	} else if direction == "up" {
 		nextTask, err = s.r.FindByPreviousPosition(task.ColumnId, task.Position)
 		if err != nil {
@@ -103,9 +100,6 @@ func (s *taskService) MoveTaskWithinColumn(taskId int64, direction string) error
 		}
 
 		nextTask.Position, task.Position = task.Position, nextTask.Position
-
-		s.r.Update(nextTask)
-		s.r.Update(task)
 	} else {
 		return errors.New("invalid direction: " + direction)
 	}

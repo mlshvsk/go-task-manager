@@ -87,6 +87,7 @@ func (tr *taskRepository) FindWithMaxPosition(columnId int64) (*models.Task, err
 		FindAll().
 		Where("and", [][]interface{}{{"column_id", "=", columnId}}).
 		OrderBy("position", "desc").
+		Limit(0, 1).
 		Get(tr.scan(&tasks))
 
 	if err != nil {
@@ -105,6 +106,7 @@ func (tr *taskRepository) FindByNextPosition(columnId int64, position int64) (*m
 	err := tr.base.
 		FindAll().Where("and", [][]interface{}{{"column_id", "=", columnId}, {"position", ">", position}}).
 		OrderBy("position", "asc").
+		Limit(0, 1).
 		Get(tr.scan(&tasks))
 
 	if err != nil {
@@ -123,6 +125,7 @@ func (tr *taskRepository) FindByPreviousPosition(columnId int64, position int64)
 	err := tr.base.
 		FindAll().Where("and", [][]interface{}{{"column_id", "=", columnId}, {"position", "<", position}}).
 		OrderBy("position", "desc").
+		Limit(0, 1).
 		Get(tr.scan(&tasks))
 
 	if err != nil {

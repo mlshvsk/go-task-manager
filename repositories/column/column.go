@@ -89,6 +89,7 @@ func (cr *columnRepository) FindByNextPosition(projectId int64, position int64) 
 		FindAll().
 		Where("and", [][]interface{}{{"project_id", "=", projectId}, {"position", ">", position}}).
 		OrderBy("position", "asc").
+		Limit(0, 1).
 		Get(cr.scan(&columns))
 
 	if err != nil {
@@ -109,6 +110,7 @@ func (cr *columnRepository) FindByPreviousPosition(projectId int64, position int
 		FindAll().
 		Where("and", [][]interface{}{{"project_id", "=", projectId}, {"position", "<", position}}).
 		OrderBy("position", "desc").
+		Limit(0, 1).
 		Get(cr.scan(&columns))
 
 	if err != nil {
@@ -128,6 +130,7 @@ func (cr *columnRepository) FindWithMaxPosition(projectId int64) (*models.Column
 		FindAll().
 		Where("and", [][]interface{}{{"project_id", "=", projectId}}).
 		OrderBy("position", "desc").
+		Limit(0, 1).
 		Get(cr.scan(&columns))
 
 	if err != nil {
