@@ -1,8 +1,8 @@
 package services
 
-import "github.com/mlshvsk/go-task-manager/models"
+import "github.com/mlshvsk/go-task-manager/domains"
 
-var TaskService models.TaskService
-var ProjectService models.ProjectService
-var CommentService models.CommentService
-var ColumnService models.ColumnService
+var TaskService domains.TaskService
+var ProjectService domains.ProjectService
+var CommentService domains.CommentService
+var ColumnService domains.ColumnService

@@ -4,7 +4,7 @@ import (
 	customErrors "github.com/mlshvsk/go-task-manager/errors"
 	"github.com/mlshvsk/go-task-manager/http/handlers"
 	"github.com/mlshvsk/go-task-manager/http/helpers"
-	"github.com/mlshvsk/go-task-manager/models"
+	"github.com/mlshvsk/go-task-manager/domains"
 	"github.com/mlshvsk/go-task-manager/services"
 	"net/http"
 )
@@ -48,7 +48,7 @@ func StoreTask(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	var task models.Task
+	var task domains.TaskModel
 	if er := helpers.RetrieveModel(req.Body, &task); er != nil {
 		return er
 	}
@@ -84,7 +84,7 @@ func ShowTask(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 }
 
 func UpdateTask(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
-	var task models.Task
+	var task domains.TaskModel
 	id, err := helpers.GetId(req, "taskId")
 	if err != nil {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}

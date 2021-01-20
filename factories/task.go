@@ -1,12 +1,12 @@
 package factories
 
 import (
-	"github.com/mlshvsk/go-task-manager/models"
+	"github.com/mlshvsk/go-task-manager/domains"
 	"time"
 )
 
-func TaskFactory(columnId int64, name string, description string, position int64) (models.Task, error) {
-	t := new(models.Task)
+func TaskFactory(columnId int64, name string, description string, position int64) (domains.TaskModel, error) {
+	t := new(domains.TaskModel)
 
 	t.ColumnId = columnId
 	t.Name = name

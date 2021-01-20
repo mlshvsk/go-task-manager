@@ -4,30 +4,30 @@ import (
 	"errors"
 	customErrors "github.com/mlshvsk/go-task-manager/errors"
 	"github.com/mlshvsk/go-task-manager/factories"
-	"github.com/mlshvsk/go-task-manager/models"
+	"github.com/mlshvsk/go-task-manager/domains"
 	"github.com/mlshvsk/go-task-manager/services"
 	"sync"
 )
 
 type columnService struct {
-	r models.ColumnRepository
+	r domains.ColumnRepository
 }
 
-func InitColumnService(r models.ColumnRepository) {
+func InitColumnService(r domains.ColumnRepository) {
 	(&sync.Once{}).Do(func() {
 		services.ColumnService = &columnService{r}
 	})
 }
 
-func (s *columnService) GetColumns(projectId int64, page int64, limit int64) ([]*models.Column, error) {
+func (s *columnService) GetColumns(projectId int64, page int64, limit int64) ([]*domains.ColumnModel, error) {
 	return s.r.FindAllByProject(projectId, page, limit)
 }
 
-func (s *columnService) GetColumn(columnId int64) (*models.Column, error) {
+func (s *columnService) GetColumn(columnId int64) (*domains.ColumnModel, error) {
 	return s.r.Find(columnId)
 }
 
-func (s *columnService) StoreColumn(c *models.Column) error {
+func (s *columnService) StoreColumn(c *domains.ColumnModel) error {
 	columns, err := s.r.FindAllByProjectAndName(c.ProjectId, c.Name)
 	if err != nil {
 		return err
@@ -53,7 +53,7 @@ func (s *columnService) StoreColumn(c *models.Column) error {
 	return s.r.Create(c)
 }
 
-func (s *columnService) UpdateColumn(c *models.Column) error {
+func (s *columnService) UpdateColumn(c *domains.ColumnModel) error {
 	columnFromDB, err := s.r.Find(c.Id)
 	if err != nil {
 		return err
@@ -98,7 +98,7 @@ func (s *columnService) DeleteColumn(columnId int64) error {
 }
 
 func (s *columnService) MoveColumn(columnId int64, direction string) error {
-	nextColumn := new(models.Column)
+	nextColumn := new(domains.ColumnModel)
 	column, err := s.r.Find(columnId)
 	if err != nil {
 		return err

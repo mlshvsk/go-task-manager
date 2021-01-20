@@ -5,7 +5,7 @@ import (
 	"github.com/mlshvsk/go-task-manager/http/handlers"
 	"github.com/mlshvsk/go-task-manager/http/helpers"
 	"github.com/mlshvsk/go-task-manager/http/transformers"
-	"github.com/mlshvsk/go-task-manager/models"
+	"github.com/mlshvsk/go-task-manager/domains"
 	"github.com/mlshvsk/go-task-manager/services"
 	"net/http"
 )
@@ -34,7 +34,7 @@ func IndexProjects(rw http.ResponseWriter, req *http.Request) *handlers.AppError
 }
 
 func StoreProject(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
-	var projectModel models.Project
+	var projectModel domains.ProjectModel
 	if er := helpers.RetrieveModel(req.Body, &projectModel); er != nil {
 		return er
 	}
@@ -79,7 +79,7 @@ func UpdateProject(rw http.ResponseWriter, req *http.Request) *handlers.AppError
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	var projectModel models.Project
+	var projectModel domains.ProjectModel
 	if er := helpers.RetrieveModel(req.Body, &projectModel); er != nil {
 		return er
 	}

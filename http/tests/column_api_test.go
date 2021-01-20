@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"github.com/mlshvsk/go-task-manager/http/helpers"
 	"github.com/mlshvsk/go-task-manager/http/routes"
-	"github.com/mlshvsk/go-task-manager/models"
+	"github.com/mlshvsk/go-task-manager/domains"
 	"github.com/mlshvsk/go-task-manager/services"
 	"github.com/mlshvsk/go-task-manager/services/column"
 	"github.com/stretchr/testify/assert"
@@ -17,8 +17,8 @@ import (
 
 func TestGetColumnById(t *testing.T) {
 	InitLoggers(t)
-	expectedColumn := &models.Column{Id: 1, Name: "Test"}
-	f := func(columnId int64) (*models.Column, error) {
+	expectedColumn := &domains.ColumnModel{Id: 1, Name: "Test"}
+	f := func(columnId int64) (*domains.ColumnModel, error) {
 		return expectedColumn, nil
 	}
 	services.ColumnService = &column.ServiceMock{GetColumnFunc: f}
@@ -41,10 +41,10 @@ func TestGetColumnById(t *testing.T) {
 
 func TestGetColumns(t *testing.T) {
 	InitLoggers(t)
-	expectedColumns := make([]*models.Column, 2)
-	expectedColumns[0] = &models.Column{Id: 1, Name: "Test"}
-	expectedColumns[1] = &models.Column{Id: 2, Name: "Test2"}
-	f := func(projectId int64, page int64, limit int64) ([]*models.Column, error) {
+	expectedColumns := make([]*domains.ColumnModel, 2)
+	expectedColumns[0] = &domains.ColumnModel{Id: 1, Name: "Test"}
+	expectedColumns[1] = &domains.ColumnModel{Id: 2, Name: "Test2"}
+	f := func(projectId int64, page int64, limit int64) ([]*domains.ColumnModel, error) {
 		assert.Equal(t, int64(1), projectId)
 		assert.Equal(t, int64(2), page)
 		assert.Equal(t, int64(10), limit)
@@ -74,15 +74,15 @@ func TestPostColumn(t *testing.T) {
 	expectedId := int64(100)
 	expectedName := "Test"
 	expectedProjectId := int64(200)
-	postColumn := &models.Column{Name: expectedName}
-	expectedColumn := &models.Column{
+	postColumn := &domains.ColumnModel{Name: expectedName}
+	expectedColumn := &domains.ColumnModel{
 		Id:        expectedId,
 		Name:      expectedName,
 		ProjectId: expectedProjectId,
 		CreatedAt: expectedTime,
 	}
 
-	f := func(c *models.Column) error {
+	f := func(c *domains.ColumnModel) error {
 		c.Id = expectedId
 		c.CreatedAt = expectedTime
 		return nil

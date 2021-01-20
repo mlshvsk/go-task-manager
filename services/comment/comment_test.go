@@ -1,7 +1,7 @@
 package comment
 
 import (
-	"github.com/mlshvsk/go-task-manager/models"
+	"github.com/mlshvsk/go-task-manager/domains"
 	"github.com/mlshvsk/go-task-manager/repositories/comment"
 	"github.com/mlshvsk/go-task-manager/services"
 	"github.com/stretchr/testify/assert"
@@ -11,7 +11,7 @@ import (
 
 func TestGetComments(t *testing.T) {
 	cr := comment.InitCommentRepositoryMock()
-	expectedResult := []*models.Comment{
+	expectedResult := []*domains.CommentModel{
 		{
 			Id:   int64(rand.Int()),
 			Data: "Test",
@@ -25,7 +25,7 @@ func TestGetComments(t *testing.T) {
 	expectedPage := int64(rand.Uint64())
 	expectedLimit := int64(rand.Uint64())
 
-	cr.FindAllByTaskFunc = func(taskId int64, offset int64, limit int64) ([]*models.Comment, error) {
+	cr.FindAllByTaskFunc = func(taskId int64, offset int64, limit int64) ([]*domains.CommentModel, error) {
 		assert.Equal(t, expectedTaskId, taskId)
 		assert.Equal(t, expectedPage, offset)
 		assert.Equal(t, expectedLimit, limit)
@@ -41,13 +41,13 @@ func TestGetComments(t *testing.T) {
 
 func TestGetComment(t *testing.T) {
 	cr := comment.InitCommentRepositoryMock()
-	expectedResult := &models.Comment{
+	expectedResult := &domains.CommentModel{
 		Id:   int64(rand.Int()),
 		Data: "Test",
 	}
 	expectedCommentId := int64(rand.Uint64())
 
-	cr.FindFunc = func(commentId int64) (*models.Comment, error) {
+	cr.FindFunc = func(commentId int64) (*domains.CommentModel, error) {
 		assert.Equal(t, expectedCommentId, commentId)
 		return expectedResult, nil
 	}

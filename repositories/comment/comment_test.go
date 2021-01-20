@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/mlshvsk/go-task-manager/database"
-	"github.com/mlshvsk/go-task-manager/models"
+	"github.com/mlshvsk/go-task-manager/domains"
 	"github.com/mlshvsk/go-task-manager/repositories/mysql"
 	"github.com/stretchr/testify/assert"
 	"log"
@@ -19,13 +19,13 @@ func TestFindAllCommentsByTask(t *testing.T) {
 
 	repo := getCommentRepository(db)
 
-	comments := make([]*models.Comment, 2)
-	comments[0] = &models.Comment{
+	comments := make([]*domains.CommentModel, 2)
+	comments[0] = &domains.CommentModel{
 		Id:        1,
 		Data:      "Test1",
 		CreatedAt: time.Now(),
 	}
-	comments[1] = &models.Comment{
+	comments[1] = &domains.CommentModel{
 		Id:        2,
 		Data:      "Test2",
 		CreatedAt: time.Now(),
@@ -51,7 +51,7 @@ func TestFindComment(t *testing.T) {
 
 	repo := getCommentRepository(db)
 
-	comment := &models.Comment{
+	comment := &domains.CommentModel{
 		Id:        1,
 		Data:      "Test1",
 		TaskId:    int64(1),
@@ -77,7 +77,7 @@ func TestCreateComment(t *testing.T) {
 
 	repo := getCommentRepository(db)
 
-	comment := &models.Comment{
+	comment := &domains.CommentModel{
 		Data:      "Test1",
 		TaskId:    int64(1),
 		CreatedAt: time.Now(),
@@ -101,7 +101,7 @@ func TestUpdateComment(t *testing.T) {
 
 	repo := getCommentRepository(db)
 
-	comment := &models.Comment{
+	comment := &domains.CommentModel{
 		Id:        int64(100),
 		Data:      "Test1",
 		TaskId:    int64(1),

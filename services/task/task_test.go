@@ -1,7 +1,7 @@
 package task
 
 import (
-	"github.com/mlshvsk/go-task-manager/models"
+	"github.com/mlshvsk/go-task-manager/domains"
 	"github.com/mlshvsk/go-task-manager/repositories/task"
 	"github.com/mlshvsk/go-task-manager/services"
 	columnService "github.com/mlshvsk/go-task-manager/services/column"
@@ -12,7 +12,7 @@ import (
 
 func TestGetTasks(t *testing.T) {
 	tr := task.InitTaskRepositoryMock()
-	expectedResult := []*models.Task{
+	expectedResult := []*domains.TaskModel{
 		{
 			Id:          int64(rand.Int()),
 			Name:        "Test",
@@ -27,7 +27,7 @@ func TestGetTasks(t *testing.T) {
 	expectedPage := int64(0)
 	expectedLimit := int64(2)
 
-	tr.FindAllFunc = func(offset int64, limit int64) ([]*models.Task, error) {
+	tr.FindAllFunc = func(offset int64, limit int64) ([]*domains.TaskModel, error) {
 		assert.Equal(t, expectedPage, offset)
 		assert.Equal(t, expectedLimit, limit)
 		return expectedResult, nil
@@ -42,7 +42,7 @@ func TestGetTasks(t *testing.T) {
 
 func TestGetTasksByColumn(t *testing.T) {
 	tr := task.InitTaskRepositoryMock()
-	expectedResult := []*models.Task{
+	expectedResult := []*domains.TaskModel{
 		{
 			Id:          int64(rand.Int()),
 			Name:        "Test",
@@ -58,7 +58,7 @@ func TestGetTasksByColumn(t *testing.T) {
 	expectedLimit := int64(2)
 	expectedColumn := int64(100)
 
-	tr.FindAllByColumnFunc = func(columnId int64, offset int64, limit int64) ([]*models.Task, error) {
+	tr.FindAllByColumnFunc = func(columnId int64, offset int64, limit int64) ([]*domains.TaskModel, error) {
 		assert.Equal(t, expectedColumn, columnId)
 		assert.Equal(t, expectedPage, offset)
 		assert.Equal(t, expectedLimit, limit)
@@ -80,15 +80,15 @@ func TestMoveTaskDownWithinColumn(t *testing.T) {
 	initialUpdated := false
 	nextUpdated := false
 
-	taskDB := &models.Task{
+	taskDB := &domains.TaskModel{
 		Id:          int64(rand.Int()),
-		Name:        "Task",
-		Description: "Task",
+		Name:        "TaskModel",
+		Description: "TaskModel",
 		ColumnId:    columnId,
 		Position:    initialPosition,
 	}
 
-	taskNextPosition := &models.Task{
+	taskNextPosition := &domains.TaskModel{
 		Id:          int64(rand.Int()),
 		Name:        "Task2",
 		Description: "Task2",
@@ -96,15 +96,15 @@ func TestMoveTaskDownWithinColumn(t *testing.T) {
 		Position:    nextPosition,
 	}
 
-	tr.FindFunc = func(taskId int64) (*models.Task, error) {
+	tr.FindFunc = func(taskId int64) (*domains.TaskModel, error) {
 		return taskDB, nil
 	}
 
-	tr.FindByNextPositionFunc = func(columnId int64, position int64) (*models.Task, error) {
+	tr.FindByNextPositionFunc = func(columnId int64, position int64) (*domains.TaskModel, error) {
 		return taskNextPosition, nil
 	}
 
-	tr.UpdateFunc = func(task *models.Task) error {
+	tr.UpdateFunc = func(task *domains.TaskModel) error {
 		if task.Id == taskDB.Id {
 			assert.Equal(t, nextPosition, task.Position)
 			initialUpdated = true
@@ -136,15 +136,15 @@ func TestMoveTaskUpWithinColumn(t *testing.T) {
 	initialUpdated := false
 	nextUpdated := false
 
-	taskDB := &models.Task{
+	taskDB := &domains.TaskModel{
 		Id:          int64(rand.Int()),
-		Name:        "Task",
-		Description: "Task",
+		Name:        "TaskModel",
+		Description: "TaskModel",
 		ColumnId:    columnId,
 		Position:    initialPosition,
 	}
 
-	taskNextPosition := &models.Task{
+	taskNextPosition := &domains.TaskModel{
 		Id:          int64(rand.Int()),
 		Name:        "Task2",
 		Description: "Task2",
@@ -152,15 +152,15 @@ func TestMoveTaskUpWithinColumn(t *testing.T) {
 		Position:    nextPosition,
 	}
 
-	tr.FindFunc = func(taskId int64) (*models.Task, error) {
+	tr.FindFunc = func(taskId int64) (*domains.TaskModel, error) {
 		return taskDB, nil
 	}
 
-	tr.FindByPreviousPositionFunc = func(columnId int64, position int64) (*models.Task, error) {
+	tr.FindByPreviousPositionFunc = func(columnId int64, position int64) (*domains.TaskModel, error) {
 		return taskNextPosition, nil
 	}
 
-	tr.UpdateFunc = func(task *models.Task) error {
+	tr.UpdateFunc = func(task *domains.TaskModel) error {
 		if task.Id == taskDB.Id {
 			assert.Equal(t, nextPosition, task.Position)
 			initialUpdated = true
@@ -190,14 +190,14 @@ func TestMoveTaskToAnotherColumn(t *testing.T) {
 	toColumnId := int64(rand.Int())
 	columnMaxPosition := int64(rand.Int())
 
-	taskDB := &models.Task{
+	taskDB := &domains.TaskModel{
 		Id:          int64(rand.Int()),
-		Name:        "Task",
-		Description: "Task",
+		Name:        "TaskModel",
+		Description: "TaskModel",
 		ColumnId:    columnId,
 	}
 
-	taskMaxPosition := &models.Task{
+	taskMaxPosition := &domains.TaskModel{
 		Id:          int64(rand.Int()),
 		Name:        "Task2",
 		Description: "Task2",
@@ -205,21 +205,21 @@ func TestMoveTaskToAnotherColumn(t *testing.T) {
 		Position:    columnMaxPosition,
 	}
 
-	tr.FindFunc = func(taskId int64) (*models.Task, error) {
+	tr.FindFunc = func(taskId int64) (*domains.TaskModel, error) {
 		return taskDB, nil
 	}
 
-	tr.FindWithMaxPositionFunc = func(columnId int64) (*models.Task, error) {
+	tr.FindWithMaxPositionFunc = func(columnId int64) (*domains.TaskModel, error) {
 		return taskMaxPosition, nil
 	}
 
-	tr.UpdateFunc = func(task *models.Task) error {
+	tr.UpdateFunc = func(task *domains.TaskModel) error {
 		assert.Equal(t, columnMaxPosition+1, task.Position)
 
 		return nil
 	}
 
-	getColFunc := func(columnId int64) (*models.Column, error) {
+	getColFunc := func(columnId int64) (*domains.ColumnModel, error) {
 		return nil, nil
 	}
 	services.ColumnService = &columnService.ServiceMock{GetColumnFunc: getColFunc}
@@ -235,28 +235,28 @@ func TestMoveTaskToAnotherColumnFirstPosition(t *testing.T) {
 	columnId := int64(rand.Int())
 	toColumnId := int64(rand.Int())
 
-	taskDB := &models.Task{
+	taskDB := &domains.TaskModel{
 		Id:          int64(rand.Int()),
-		Name:        "Task",
-		Description: "Task",
+		Name:        "TaskModel",
+		Description: "TaskModel",
 		ColumnId:    columnId,
 	}
 
-	tr.FindFunc = func(taskId int64) (*models.Task, error) {
+	tr.FindFunc = func(taskId int64) (*domains.TaskModel, error) {
 		return taskDB, nil
 	}
 
-	tr.FindWithMaxPositionFunc = func(columnId int64) (*models.Task, error) {
+	tr.FindWithMaxPositionFunc = func(columnId int64) (*domains.TaskModel, error) {
 		return nil, nil
 	}
 
-	tr.UpdateFunc = func(task *models.Task) error {
+	tr.UpdateFunc = func(task *domains.TaskModel) error {
 		assert.Equal(t, int64(0), task.Position)
 
 		return nil
 	}
 
-	getColFunc := func(columnId int64) (*models.Column, error) {
+	getColFunc := func(columnId int64) (*domains.ColumnModel, error) {
 		return nil, nil
 	}
 	services.ColumnService = &columnService.ServiceMock{GetColumnFunc: getColFunc}

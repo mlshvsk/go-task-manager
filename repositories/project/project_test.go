@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/mlshvsk/go-task-manager/database"
-	"github.com/mlshvsk/go-task-manager/models"
+	"github.com/mlshvsk/go-task-manager/domains"
 	"github.com/mlshvsk/go-task-manager/repositories/mysql"
 	"github.com/stretchr/testify/assert"
 	"log"
@@ -19,15 +19,15 @@ func TestFindAllProjects(t *testing.T) {
 
 	repo := getProjectRepository(db)
 
-	projects := make([]*models.Project, 2)
-	projects[0] = &models.Project{
+	projects := make([]*domains.ProjectModel, 2)
+	projects[0] = &domains.ProjectModel{
 		Id:          1,
 		Name:        "Test1",
 		Description: "Descr1",
 		CreatedAt:   time.Now(),
 	}
 
-	projects[1] = &models.Project{
+	projects[1] = &domains.ProjectModel{
 		Id:          2,
 		Name:        "Test2",
 		Description: "Descr2",
@@ -54,7 +54,7 @@ func TestFindProject(t *testing.T) {
 
 	repo := getProjectRepository(db)
 
-	project := &models.Project{
+	project := &domains.ProjectModel{
 		Id:          1,
 		Name:        "Test1",
 		Description: "TestD",
@@ -80,8 +80,8 @@ func TestFindProjectByName(t *testing.T) {
 
 	repo := getProjectRepository(db)
 
-	projects := make([]*models.Project, 1)
-	projects[0] = &models.Project{
+	projects := make([]*domains.ProjectModel, 1)
+	projects[0] = &domains.ProjectModel{
 		Id:          1,
 		Name:        "Test1",
 		Description: "Descr1",
@@ -107,7 +107,7 @@ func TestCreateProject(t *testing.T) {
 
 	repo := getProjectRepository(db)
 
-	project := &models.Project{
+	project := &domains.ProjectModel{
 		Name:        "Test1",
 		Description: "TestD",
 		CreatedAt:   time.Now(),

@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"github.com/mlshvsk/go-task-manager/http/helpers"
 	"github.com/mlshvsk/go-task-manager/http/routes"
-	"github.com/mlshvsk/go-task-manager/models"
+	"github.com/mlshvsk/go-task-manager/domains"
 	"github.com/mlshvsk/go-task-manager/services"
 	"github.com/mlshvsk/go-task-manager/services/task"
 	"github.com/stretchr/testify/assert"
@@ -17,8 +17,8 @@ import (
 
 func TestGetTaskById(t *testing.T) {
 	InitLoggers(t)
-	expectedTask := &models.Task{Id: 1, Name: "Test"}
-	f := func(taskId int64) (*models.Task, error) {
+	expectedTask := &domains.TaskModel{Id: 1, Name: "Test"}
+	f := func(taskId int64) (*domains.TaskModel, error) {
 		return expectedTask, nil
 	}
 	services.TaskService = &task.ServiceMock{GetTaskFunc: f}
@@ -41,10 +41,10 @@ func TestGetTaskById(t *testing.T) {
 
 func TestGetTasks(t *testing.T) {
 	InitLoggers(t)
-	expectedTasks := make([]*models.Task, 2)
-	expectedTasks[0] = &models.Task{Id: 1, Name: "Test"}
-	expectedTasks[1] = &models.Task{Id: 2, Name: "Test2"}
-	f := func(page int64, limit int64) ([]*models.Task, error) {
+	expectedTasks := make([]*domains.TaskModel, 2)
+	expectedTasks[0] = &domains.TaskModel{Id: 1, Name: "Test"}
+	expectedTasks[1] = &domains.TaskModel{Id: 2, Name: "Test2"}
+	f := func(page int64, limit int64) ([]*domains.TaskModel, error) {
 		assert.Equal(t, int64(2), page)
 		assert.Equal(t, int64(10), limit)
 		return expectedTasks, nil
@@ -73,15 +73,15 @@ func TestPostTask(t *testing.T) {
 	expectedId := int64(100)
 	expectedName := "Test"
 	expectedColumnId := int64(200)
-	postColumn := &models.Task{Name: expectedName}
-	expectedColumn := &models.Task{
+	postColumn := &domains.TaskModel{Name: expectedName}
+	expectedColumn := &domains.TaskModel{
 		Id:        expectedId,
 		Name:      expectedName,
 		ColumnId: expectedColumnId,
 		CreatedAt: expectedTime,
 	}
 
-	f := func(c *models.Task) error {
+	f := func(c *domains.TaskModel) error {
 		c.Id = expectedId
 		c.CreatedAt = expectedTime
 		return nil

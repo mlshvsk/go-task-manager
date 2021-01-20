@@ -2,30 +2,30 @@ package comment
 
 import (
 	"github.com/mlshvsk/go-task-manager/factories"
-	"github.com/mlshvsk/go-task-manager/models"
+	"github.com/mlshvsk/go-task-manager/domains"
 	"github.com/mlshvsk/go-task-manager/services"
 	"sync"
 )
 
 type commentService struct {
-	r models.CommentRepository
+	r domains.CommentRepository
 }
 
-func InitCommentService(r models.CommentRepository) {
+func InitCommentService(r domains.CommentRepository) {
 	(&sync.Once{}).Do(func() {
 		services.CommentService = &commentService{r}
 	})
 }
 
-func (s *commentService) GetCommentsByTask(taskId int64, page int64, limit int64) ([]*models.Comment, error) {
+func (s *commentService) GetCommentsByTask(taskId int64, page int64, limit int64) ([]*domains.CommentModel, error) {
 	return s.r.FindAllByTask(taskId, page, limit)
 }
 
-func (s *commentService) GetComment(commentId int64) (*models.Comment, error) {
+func (s *commentService) GetComment(commentId int64) (*domains.CommentModel, error) {
 	return s.r.Find(commentId)
 }
 
-func (s *commentService) StoreComment(c *models.Comment) error {
+func (s *commentService) StoreComment(c *domains.CommentModel) error {
 	var err error
 	*c, err = factories.CommentFactory(c.TaskId, c.Data)
 	if err != nil {
@@ -35,7 +35,7 @@ func (s *commentService) StoreComment(c *models.Comment) error {
 	return s.r.Create(c)
 }
 
-func (s *commentService) UpdateComment(c *models.Comment) error {
+func (s *commentService) UpdateComment(c *domains.CommentModel) error {
 	commentFromDB, err := s.r.Find(c.Id)
 	if err != nil {
 		return err

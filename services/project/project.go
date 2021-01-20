@@ -3,30 +3,30 @@ package project
 import (
 	customErrors "github.com/mlshvsk/go-task-manager/errors"
 	"github.com/mlshvsk/go-task-manager/factories"
-	"github.com/mlshvsk/go-task-manager/models"
+	"github.com/mlshvsk/go-task-manager/domains"
 	"github.com/mlshvsk/go-task-manager/services"
 	"sync"
 )
 
 type projectService struct {
-	r models.ProjectRepository
+	r domains.ProjectRepository
 }
 
-func InitProjectService(r models.ProjectRepository) {
+func InitProjectService(r domains.ProjectRepository) {
 	(&sync.Once{}).Do(func() {
 		services.ProjectService = &projectService{r}
 	})
 }
 
-func (s *projectService) GetProjects(page int64, limit int64) ([]*models.Project, error) {
+func (s *projectService) GetProjects(page int64, limit int64) ([]*domains.ProjectModel, error) {
 	return s.r.FindAll(page, limit)
 }
 
-func (s *projectService) GetProject(id int64) (*models.Project, error) {
+func (s *projectService) GetProject(id int64) (*domains.ProjectModel, error) {
 	return s.r.Find(id)
 }
 
-func (s *projectService) StoreProject(p *models.Project) error {
+func (s *projectService) StoreProject(p *domains.ProjectModel) error {
 	projects, err := s.r.FindAllByName(p.Name)
 	if err != nil {
 		return err
@@ -58,7 +58,7 @@ func (s *projectService) StoreProject(p *models.Project) error {
 	return nil
 }
 
-func (s *projectService) UpdateProject(p *models.Project) error {
+func (s *projectService) UpdateProject(p *domains.ProjectModel) error {
 	projectFromDB, err := s.r.Find(p.Id)
 	if err != nil {
 		return err

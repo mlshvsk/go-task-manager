@@ -1,11 +1,11 @@
 package controllers
 
 import (
+	"github.com/mlshvsk/go-task-manager/domains"
 	customErrors "github.com/mlshvsk/go-task-manager/errors"
 	"github.com/mlshvsk/go-task-manager/http/handlers"
 	"github.com/mlshvsk/go-task-manager/http/helpers"
 	"github.com/mlshvsk/go-task-manager/http/transformers"
-	"github.com/mlshvsk/go-task-manager/models"
 	"github.com/mlshvsk/go-task-manager/services"
 	"net/http"
 )
@@ -63,7 +63,7 @@ func StoreColumn(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	var column models.Column
+	var column domains.ColumnModel
 	if er := helpers.RetrieveModel(req.Body, &column); er != nil {
 		return er
 	}
@@ -107,7 +107,7 @@ func UpdateColumn(rw http.ResponseWriter, req *http.Request) *handlers.AppError 
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	var column models.Column
+	var column domains.ColumnModel
 	if er := helpers.RetrieveModel(req.Body, &column); er != nil {
 		return er
 	}

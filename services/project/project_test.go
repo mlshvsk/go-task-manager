@@ -1,7 +1,7 @@
 package project
 
 import (
-	"github.com/mlshvsk/go-task-manager/models"
+	"github.com/mlshvsk/go-task-manager/domains"
 	"github.com/mlshvsk/go-task-manager/repositories/project"
 	"github.com/mlshvsk/go-task-manager/services"
 	columnService "github.com/mlshvsk/go-task-manager/services/column"
@@ -12,7 +12,7 @@ import (
 
 func TestGetProjects(t *testing.T) {
 	pr := project.InitProjectRepositoryMock()
-	expectedResult := []*models.Project{
+	expectedResult := []*domains.ProjectModel{
 		{
 			Id:   int64(rand.Int()),
 			Name: "Test",
@@ -27,7 +27,7 @@ func TestGetProjects(t *testing.T) {
 	expectedPage := int64(0)
 	expectedLimit := int64(2)
 
-	pr.FindAllFunc = func(offset int64, limit int64) ([]*models.Project, error) {
+	pr.FindAllFunc = func(offset int64, limit int64) ([]*domains.ProjectModel, error) {
 		assert.Equal(t, expectedPage, offset)
 		assert.Equal(t, expectedLimit, limit)
 		return expectedResult, nil
@@ -42,14 +42,14 @@ func TestGetProjects(t *testing.T) {
 
 func TestGetProject(t *testing.T) {
 	pr := project.InitProjectRepositoryMock()
-	expectedResult := &models.Project{
+	expectedResult := &domains.ProjectModel{
 		Id:   int64(rand.Int()),
 		Name: "Test",
 		Description: "TestD",
 	}
 	expectedId := int64(100)
 
-	pr.FindFunc = func(id int64) (*models.Project, error) {
+	pr.FindFunc = func(id int64) (*domains.ProjectModel, error) {
 		assert.Equal(t, expectedId, id)
 		return expectedResult, nil
 	}
@@ -65,20 +65,20 @@ func TestStoreProject(t *testing.T) {
 	columnCreateIsCalled := false
 	pr := project.InitProjectRepositoryMock()
 
-	p := &models.Project{
+	p := &domains.ProjectModel{
 		Name: "Test",
 		Description: "TestD",
 	}
 	expectedProjectId := int64(rand.Int())
 
-	pr.CreateFunc = func(p *models.Project) error {
+	pr.CreateFunc = func(p *domains.ProjectModel) error {
 		p.Id = expectedProjectId
 		return nil
 	}
-	pr.FindAllByNameFunc = func(name string) ([]*models.Project, error) {
+	pr.FindAllByNameFunc = func(name string) ([]*domains.ProjectModel, error) {
 		return nil, nil
 	}
-	createFunc := func(c *models.Column) error {
+	createFunc := func(c *domains.ColumnModel) error {
 		columnCreateIsCalled = true
 		assert.Equal(t, expectedProjectId, c.ProjectId)
 		assert.Equal(t, "New", c.Name)
@@ -104,7 +104,7 @@ func TestDeleteProject(t *testing.T) {
 		assert.Equal(t, expectedProjectId, id)
 		return nil
 	}
-	pr.FindFunc = func(id int64) (*models.Project, error) {
+	pr.FindFunc = func(id int64) (*domains.ProjectModel, error) {
 		return nil, nil
 	}
 

@@ -4,7 +4,7 @@ import (
 	customErrors "github.com/mlshvsk/go-task-manager/errors"
 	"github.com/mlshvsk/go-task-manager/http/handlers"
 	"github.com/mlshvsk/go-task-manager/http/helpers"
-	"github.com/mlshvsk/go-task-manager/models"
+	"github.com/mlshvsk/go-task-manager/domains"
 	"github.com/mlshvsk/go-task-manager/services"
 	"net/http"
 )
@@ -52,7 +52,7 @@ func StoreComment(rw http.ResponseWriter, req *http.Request) *handlers.AppError 
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
-	var comment models.Comment
+	var comment domains.CommentModel
 	if er := helpers.RetrieveModel(req.Body, &comment); er != nil {
 		return er
 	}
@@ -66,7 +66,7 @@ func StoreComment(rw http.ResponseWriter, req *http.Request) *handlers.AppError 
 }
 
 func UpdateComment(rw http.ResponseWriter, req *http.Request) *handlers.AppError {
-	var comment models.Comment
+	var comment domains.CommentModel
 	id, err := helpers.GetId(req, "commentId")
 	if err != nil {
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}

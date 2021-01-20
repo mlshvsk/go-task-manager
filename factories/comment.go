@@ -1,12 +1,12 @@
 package factories
 
 import (
-	"github.com/mlshvsk/go-task-manager/models"
+	"github.com/mlshvsk/go-task-manager/domains"
 	"time"
 )
 
-func CommentFactory(taskId int64, data string) (models.Comment, error) {
-	c := new(models.Comment)
+func CommentFactory(taskId int64, data string) (domains.CommentModel, error) {
+	c := new(domains.CommentModel)
 
 	c.TaskId = taskId
 	c.Data = data

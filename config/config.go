@@ -31,7 +31,6 @@ type Config struct {
 	Port       int                 `json:"port"`
 }
 
-// New creates a new config by reading a json file that matches the types above
 func Load(path string) (Config, error) {
 	file, err := os.Open(path)
 	defer file.Close()

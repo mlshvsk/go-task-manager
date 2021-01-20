@@ -3,7 +3,7 @@ package task
 import (
 	"database/sql"
 	customErrors "github.com/mlshvsk/go-task-manager/errors"
-	"github.com/mlshvsk/go-task-manager/models"
+	"github.com/mlshvsk/go-task-manager/domains"
 	"github.com/mlshvsk/go-task-manager/repositories/base"
 )
 
@@ -20,8 +20,8 @@ func InitTaskRepository(baseRepo base.Repository) *taskRepository {
 	return tr
 }
 
-func (tr *taskRepository) FindAll(offset int64, limit int64) ([]*models.Task, error) {
-	tasks := make([]*models.Task, 0)
+func (tr *taskRepository) FindAll(offset int64, limit int64) ([]*domains.TaskModel, error) {
+	tasks := make([]*domains.TaskModel, 0)
 	err := tr.base.
 		FindAll().
 		OrderBy("created_at", "asc").
@@ -35,8 +35,8 @@ func (tr *taskRepository) FindAll(offset int64, limit int64) ([]*models.Task, er
 	return tasks, nil
 }
 
-func (tr *taskRepository) FindAllByColumn(columnId int64, offset int64, limit int64) ([]*models.Task, error) {
-	tasks := make([]*models.Task, 0)
+func (tr *taskRepository) FindAllByColumn(columnId int64, offset int64, limit int64) ([]*domains.TaskModel, error) {
+	tasks := make([]*domains.TaskModel, 0)
 	err := tr.base.
 		FindAll().
 		Where("and", [][]interface{}{{"column_id", "=", columnId}}).
@@ -51,8 +51,8 @@ func (tr *taskRepository) FindAllByColumn(columnId int64, offset int64, limit in
 	return tasks, nil
 }
 
-func (tr *taskRepository) FindAllByColumnAndName(columnId int64, name string, offset int64, limit int64) ([]*models.Task, error) {
-	tasks := make([]*models.Task, 0)
+func (tr *taskRepository) FindAllByColumnAndName(columnId int64, name string, offset int64, limit int64) ([]*domains.TaskModel, error) {
+	tasks := make([]*domains.TaskModel, 0)
 	err := tr.base.
 		FindAll().
 		Where("and", [][]interface{}{{"column_id", "=", columnId}, {"name", "=", name}}).
@@ -66,8 +66,8 @@ func (tr *taskRepository) FindAllByColumnAndName(columnId int64, name string, of
 	return tasks, nil
 }
 
-func (tr *taskRepository) Find(id int64) (*models.Task, error) {
-	tasks := make([]*models.Task, 0)
+func (tr *taskRepository) Find(id int64) (*domains.TaskModel, error) {
+	tasks := make([]*domains.TaskModel, 0)
 	err := tr.base.Find(id).Get(tr.scan(&tasks))
 
 	if err != nil {
@@ -81,8 +81,8 @@ func (tr *taskRepository) Find(id int64) (*models.Task, error) {
 	return tasks[0], nil
 }
 
-func (tr *taskRepository) FindWithMaxPosition(columnId int64) (*models.Task, error) {
-	var tasks = make([]*models.Task, 0)
+func (tr *taskRepository) FindWithMaxPosition(columnId int64) (*domains.TaskModel, error) {
+	var tasks = make([]*domains.TaskModel, 0)
 	err := tr.base.
 		FindAll().
 		Where("and", [][]interface{}{{"column_id", "=", columnId}}).
@@ -101,8 +101,8 @@ func (tr *taskRepository) FindWithMaxPosition(columnId int64) (*models.Task, err
 	return tasks[0], nil
 }
 
-func (tr *taskRepository) FindByNextPosition(columnId int64, position int64) (*models.Task, error) {
-	tasks := make([]*models.Task, 0)
+func (tr *taskRepository) FindByNextPosition(columnId int64, position int64) (*domains.TaskModel, error) {
+	tasks := make([]*domains.TaskModel, 0)
 	err := tr.base.
 		FindAll().Where("and", [][]interface{}{{"column_id", "=", columnId}, {"position", ">", position}}).
 		OrderBy("position", "asc").
@@ -120,8 +120,8 @@ func (tr *taskRepository) FindByNextPosition(columnId int64, position int64) (*m
 	return tasks[0], nil
 }
 
-func (tr *taskRepository) FindByPreviousPosition(columnId int64, position int64) (*models.Task, error) {
-	tasks := make([]*models.Task, 0)
+func (tr *taskRepository) FindByPreviousPosition(columnId int64, position int64) (*domains.TaskModel, error) {
+	tasks := make([]*domains.TaskModel, 0)
 	err := tr.base.
 		FindAll().Where("and", [][]interface{}{{"column_id", "=", columnId}, {"position", "<", position}}).
 		OrderBy("position", "desc").
@@ -139,7 +139,7 @@ func (tr *taskRepository) FindByPreviousPosition(columnId int64, position int64)
 	return tasks[0], nil
 }
 
-func (tr *taskRepository) Create(t *models.Task) error {
+func (tr *taskRepository) Create(t *domains.TaskModel) error {
 	id, err := tr.base.Create(map[string]interface{}{
 		"name":        t.Name,
 		"description": t.Description,
@@ -156,7 +156,7 @@ func (tr *taskRepository) Create(t *models.Task) error {
 	return nil
 }
 
-func (tr *taskRepository) Update(t *models.Task) error {
+func (tr *taskRepository) Update(t *domains.TaskModel) error {
 	err := tr.base.Update(t.Id, map[string]interface{}{
 		"name":        &t.Name,
 		"description": &t.Description,
@@ -175,10 +175,10 @@ func (tr *taskRepository) Delete(id int64) error {
 	return tr.base.Delete(id)
 }
 
-func (tr *taskRepository) scan(tasks *[]*models.Task) func(rows *sql.Rows) error {
+func (tr *taskRepository) scan(tasks *[]*domains.TaskModel) func(rows *sql.Rows) error {
 	return func(rows *sql.Rows) error {
 		for rows.Next() {
-			task := new(models.Task)
+			task := new(domains.TaskModel)
 			if err := rows.Scan(&task.Id, &task.Name, &task.Description, &task.ColumnId, &task.Position, &task.CreatedAt); err != nil {
 				return err
 			}

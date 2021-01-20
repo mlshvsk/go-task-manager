@@ -3,34 +3,34 @@ package task
 import (
 	"errors"
 	"github.com/mlshvsk/go-task-manager/factories"
-	"github.com/mlshvsk/go-task-manager/models"
+	"github.com/mlshvsk/go-task-manager/domains"
 	"github.com/mlshvsk/go-task-manager/services"
 	"sync"
 )
 
 type taskService struct {
-	r models.TaskRepository
+	r domains.TaskRepository
 }
 
-func InitTaskService(r models.TaskRepository) {
+func InitTaskService(r domains.TaskRepository) {
 	(&sync.Once{}).Do(func() {
 		services.TaskService = &taskService{r}
 	})
 }
 
-func (s *taskService) GetTasksByColumn(columnId int64, page int64, limit int64) ([]*models.Task, error) {
+func (s *taskService) GetTasksByColumn(columnId int64, page int64, limit int64) ([]*domains.TaskModel, error) {
 	return s.r.FindAllByColumn(columnId, page, limit)
 }
 
-func (s *taskService) GetTasks(page int64, limit int64) ([]*models.Task, error) {
+func (s *taskService) GetTasks(page int64, limit int64) ([]*domains.TaskModel, error) {
 	return s.r.FindAll(page, limit)
 }
 
-func (s *taskService) GetTask(id int64) (*models.Task, error) {
+func (s *taskService) GetTask(id int64) (*domains.TaskModel, error) {
 	return s.r.Find(id)
 }
 
-func (s *taskService) StoreTask(t *models.Task) error {
+func (s *taskService) StoreTask(t *domains.TaskModel) error {
 	previousTask, err := s.r.FindWithMaxPosition(t.ColumnId)
 	if err != nil {
 		return err
@@ -50,7 +50,7 @@ func (s *taskService) StoreTask(t *models.Task) error {
 	return s.r.Create(t)
 }
 
-func (s *taskService) UpdateTask(t *models.Task) error {
+func (s *taskService) UpdateTask(t *domains.TaskModel) error {
 	taskFromDB, err := s.r.Find(t.Id)
 	if err != nil {
 		return err
@@ -72,7 +72,7 @@ func (s *taskService) DeleteTask(taskId int64) error {
 }
 
 func (s *taskService) MoveTaskWithinColumn(taskId int64, direction string) error {
-	nextTask := new(models.Task)
+	nextTask := new(domains.TaskModel)
 	task, err := s.r.Find(taskId)
 	if err != nil {
 		return err
@@ -136,7 +136,7 @@ func (s *taskService) MoveTaskToColumn(taskId int64, toColumnId int64) error {
 	return s.r.Update(task)
 }
 
-func (s *taskService) MoveAllToColumn(fromColumn *models.Column, toColumn *models.Column) error {
+func (s *taskService) MoveAllToColumn(fromColumn *domains.ColumnModel, toColumn *domains.ColumnModel) error {
 	tasks, err := s.r.FindAllByColumn(fromColumn.Id, 0, -1)
 	if err != nil {
 		return err

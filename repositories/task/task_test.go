@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/mlshvsk/go-task-manager/database"
-	"github.com/mlshvsk/go-task-manager/models"
+	"github.com/mlshvsk/go-task-manager/domains"
 	"github.com/mlshvsk/go-task-manager/repositories/mysql"
 	"github.com/stretchr/testify/assert"
 	"log"
@@ -19,8 +19,8 @@ func TestFindAllTasks(t *testing.T) {
 
 	repo := getTaskRepository(db)
 
-	tasks := make([]*models.Task, 2)
-	tasks[0] = &models.Task{
+	tasks := make([]*domains.TaskModel, 2)
+	tasks[0] = &domains.TaskModel{
 		Id:          1,
 		Name:        "Test1",
 		Description: "Descr1",
@@ -29,7 +29,7 @@ func TestFindAllTasks(t *testing.T) {
 		CreatedAt:   time.Now(),
 	}
 
-	tasks[1] = &models.Task{
+	tasks[1] = &domains.TaskModel{
 		Id:          2,
 		Name:        "Test2",
 		Description: "Descr2",
@@ -58,8 +58,8 @@ func TestFindAllTasksByColumn(t *testing.T) {
 
 	repo := getTaskRepository(db)
 
-	tasks := make([]*models.Task, 1)
-	tasks[0] = &models.Task{
+	tasks := make([]*domains.TaskModel, 1)
+	tasks[0] = &domains.TaskModel{
 		Id:          1,
 		Name:        "Test1",
 		Description: "Descr1",
@@ -87,8 +87,8 @@ func TestFindWithMaxPosition(t *testing.T) {
 
 	repo := getTaskRepository(db)
 
-	tasks := make([]*models.Task, 2)
-	tasks[0] = &models.Task{
+	tasks := make([]*domains.TaskModel, 2)
+	tasks[0] = &domains.TaskModel{
 		Id:          1,
 		Name:        "Test1",
 		Description: "Descr1",
@@ -96,7 +96,7 @@ func TestFindWithMaxPosition(t *testing.T) {
 		Position: int64(2),
 		CreatedAt:   time.Now(),
 	}
-	tasks[1] = &models.Task{
+	tasks[1] = &domains.TaskModel{
 		Id:          2,
 		Name:        "Test2",
 		Description: "Descr2",
@@ -126,8 +126,8 @@ func TestFindByNextPosition(t *testing.T) {
 
 	repo := getTaskRepository(db)
 
-	tasks := make([]*models.Task, 2)
-	tasks[0] = &models.Task{
+	tasks := make([]*domains.TaskModel, 2)
+	tasks[0] = &domains.TaskModel{
 		Id:          1,
 		Name:        "Test1",
 		Description: "Descr1",
@@ -135,7 +135,7 @@ func TestFindByNextPosition(t *testing.T) {
 		Position: int64(2),
 		CreatedAt:   time.Now(),
 	}
-	tasks[1] = &models.Task{
+	tasks[1] = &domains.TaskModel{
 		Id:          2,
 		Name:        "Test2",
 		Description: "Descr2",
@@ -165,8 +165,8 @@ func TestFindByPreviousPosition(t *testing.T) {
 
 	repo := getTaskRepository(db)
 
-	tasks := make([]*models.Task, 2)
-	tasks[0] = &models.Task{
+	tasks := make([]*domains.TaskModel, 2)
+	tasks[0] = &domains.TaskModel{
 		Id:          1,
 		Name:        "Test1",
 		Description: "Descr1",
@@ -174,7 +174,7 @@ func TestFindByPreviousPosition(t *testing.T) {
 		Position: int64(2),
 		CreatedAt:   time.Now(),
 	}
-	tasks[1] = &models.Task{
+	tasks[1] = &domains.TaskModel{
 		Id:          2,
 		Name:        "Test2",
 		Description: "Descr2",
@@ -204,7 +204,7 @@ func TestCreateTask(t *testing.T) {
 
 	repo := getTaskRepository(db)
 
-	task := &models.Task{
+	task := &domains.TaskModel{
 		Name:        "Test1",
 		Description: "TestD",
 		ColumnId: int64(10),

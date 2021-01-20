@@ -5,7 +5,7 @@ import (
 	"errors"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/mlshvsk/go-task-manager/database"
-	"github.com/mlshvsk/go-task-manager/models"
+	"github.com/mlshvsk/go-task-manager/domains"
 	"github.com/stretchr/testify/assert"
 	"log"
 	"regexp"
@@ -156,7 +156,7 @@ func TestGetQuery(t *testing.T) {
 	where := [][]interface{}{{"name", "=", "Test"}}
 	expectedQuery := "SELECT id, name FROM test WHERE name=\\? ORDER BY id DESC"
 
-	p := &models.Project{
+	p := &domains.ProjectModel{
 		Id:          123,
 		Name:        "Test",
 		Description: "Test",
@@ -181,7 +181,7 @@ func TestExecQuery(t *testing.T) {
 	q := getBaseQuery(db)
 
 	expectedQuery := regexp.QuoteMeta("INSERT INTO test (created_at, description, name) VALUES (?, ?, ?)")
-	p := &models.Project{
+	p := &domains.ProjectModel{
 		Id:          123,
 		Name:        "Test",
 		Description: "Test",

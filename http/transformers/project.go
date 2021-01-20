@@ -1,18 +1,18 @@
 package transformers
 
 import (
-	"github.com/mlshvsk/go-task-manager/models"
+	"github.com/mlshvsk/go-task-manager/domains"
 	"github.com/mlshvsk/go-task-manager/services"
 )
 
 type ExtendedProject struct {
-	models.Project
-	Columns []*models.Column `json:"columns"`
+	domains.ProjectModel
+	Columns []*domains.ColumnModel `json:"columns"`
 }
 
-func ExtendProject(p *models.Project, includeColumns string) (interface{}, error) {
+func ExtendProject(p *domains.ProjectModel, includeColumns string) (interface{}, error) {
 	if includeColumns == "true" {
-		tc := &ExtendedProject{Project: *p}
+		tc := &ExtendedProject{ProjectModel: *p}
 
 		columns, err := services.ColumnService.GetColumns(p.Id, 0, -1)
 		if err != nil {
@@ -27,7 +27,7 @@ func ExtendProject(p *models.Project, includeColumns string) (interface{}, error
 	return p, nil
 }
 
-func ExtendProjects(c []*models.Project, includeTasks string) (interface{}, error) {
+func ExtendProjects(c []*domains.ProjectModel, includeTasks string) (interface{}, error) {
 	tc := make([]interface{}, len(c))
 
 	for i := range tc {

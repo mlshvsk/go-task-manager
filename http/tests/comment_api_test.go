@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"github.com/mlshvsk/go-task-manager/http/helpers"
 	"github.com/mlshvsk/go-task-manager/http/routes"
-	"github.com/mlshvsk/go-task-manager/models"
+	"github.com/mlshvsk/go-task-manager/domains"
 	"github.com/mlshvsk/go-task-manager/services"
 	"github.com/mlshvsk/go-task-manager/services/comment"
 	"github.com/stretchr/testify/assert"
@@ -17,8 +17,8 @@ import (
 
 func TestGetCommentById(t *testing.T) {
 	InitLoggers(t)
-	expectedComment := &models.Comment{Id: 1, Data: "Test"}
-	f := func(columnId int64) (*models.Comment, error) {
+	expectedComment := &domains.CommentModel{Id: 1, Data: "Test"}
+	f := func(columnId int64) (*domains.CommentModel, error) {
 		return expectedComment, nil
 	}
 	services.CommentService = &comment.ServiceMock{GetCommentFunc: f}
@@ -41,10 +41,10 @@ func TestGetCommentById(t *testing.T) {
 
 func TestGetComments(t *testing.T) {
 	InitLoggers(t)
-	expectedComments := make([]*models.Comment, 2)
-	expectedComments[0] = &models.Comment{Id: 1, Data: "Test"}
-	expectedComments[1] = &models.Comment{Id: 2, Data: "Test2"}
-	f := func(projectId int64, page int64, limit int64) ([]*models.Comment, error) {
+	expectedComments := make([]*domains.CommentModel, 2)
+	expectedComments[0] = &domains.CommentModel{Id: 1, Data: "Test"}
+	expectedComments[1] = &domains.CommentModel{Id: 2, Data: "Test2"}
+	f := func(projectId int64, page int64, limit int64) ([]*domains.CommentModel, error) {
 		assert.Equal(t, int64(1), projectId)
 		assert.Equal(t, int64(2), page)
 		assert.Equal(t, int64(10), limit)
@@ -74,15 +74,15 @@ func TestPostComment(t *testing.T) {
 	expectedId := int64(100)
 	expectedData := "Test"
 	expectedTaskId := int64(200)
-	postComment := &models.Comment{Data: expectedData}
-	expectedComment := &models.Comment{
+	postComment := &domains.CommentModel{Data: expectedData}
+	expectedComment := &domains.CommentModel{
 		Id:        expectedId,
 		Data:      expectedData,
 		TaskId: expectedTaskId,
 		CreatedAt: expectedTime,
 	}
 
-	f := func(c *models.Comment) error {
+	f := func(c *domains.CommentModel) error {
 		c.Id = expectedId
 		c.CreatedAt = expectedTime
 		return nil
@@ -111,15 +111,15 @@ func TestPostComment(t *testing.T) {
 func TestUpdateComment(t *testing.T) {
 	InitLoggers(t)
 	expectedData := "Test"
-	postComment := &models.Comment{Data: expectedData}
-	expectedComment := &models.Comment{
+	postComment := &domains.CommentModel{Data: expectedData}
+	expectedComment := &domains.CommentModel{
 		Id:        int64(100),
 		Data:      expectedData,
 		TaskId: int64(100),
 		CreatedAt: time.Now(),
 	}
 
-	f := func(c *models.Comment) error {
+	f := func(c *domains.CommentModel) error {
 		*c = *expectedComment
 		return nil
 	}

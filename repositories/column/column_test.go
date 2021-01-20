@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/mlshvsk/go-task-manager/database"
-	"github.com/mlshvsk/go-task-manager/models"
+	"github.com/mlshvsk/go-task-manager/domains"
 	"github.com/mlshvsk/go-task-manager/repositories/mysql"
 	"github.com/stretchr/testify/assert"
 	"log"
@@ -19,8 +19,8 @@ func TestFindAllColumnsByProject(t *testing.T) {
 
 	repo := getColumnRepository(db)
 
-	columns := make([]*models.Column, 2)
-	columns[0] = &models.Column{
+	columns := make([]*domains.ColumnModel, 2)
+	columns[0] = &domains.ColumnModel{
 		Id:        1,
 		Name:      "Test1",
 		ProjectId: int64(1),
@@ -28,7 +28,7 @@ func TestFindAllColumnsByProject(t *testing.T) {
 		CreatedAt: time.Now(),
 	}
 
-	columns[1] = &models.Column{
+	columns[1] = &domains.ColumnModel{
 		Id:        2,
 		Name:      "Test2",
 		ProjectId: int64(1),
@@ -56,7 +56,7 @@ func TestFindColumn(t *testing.T) {
 
 	repo := getColumnRepository(db)
 
-	column := &models.Column{
+	column := &domains.ColumnModel{
 		Id:        1,
 		Name:      "Test1",
 		ProjectId: int64(1),
@@ -83,7 +83,7 @@ func TestFindColumnByNextPosition(t *testing.T) {
 
 	repo := getColumnRepository(db)
 
-	column := &models.Column{
+	column := &domains.ColumnModel{
 		Id:        1,
 		Name:      "Test1",
 		ProjectId: int64(1),
@@ -110,7 +110,7 @@ func TestFindColumnByPreviousPosition(t *testing.T) {
 
 	repo := getColumnRepository(db)
 
-	column := &models.Column{
+	column := &domains.ColumnModel{
 		Id:        1,
 		Name:      "Test1",
 		ProjectId: int64(1),
@@ -137,7 +137,7 @@ func TestCreateColumn(t *testing.T) {
 
 	repo := getColumnRepository(db)
 
-	column := &models.Column{
+	column := &domains.ColumnModel{
 		Name:      "Test1",
 		ProjectId: int64(1),
 		Position:  20,

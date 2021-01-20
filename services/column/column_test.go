@@ -1,7 +1,7 @@
 package column
 
 import (
-	"github.com/mlshvsk/go-task-manager/models"
+	"github.com/mlshvsk/go-task-manager/domains"
 	"github.com/mlshvsk/go-task-manager/repositories/column"
 	"github.com/mlshvsk/go-task-manager/services"
 	"github.com/mlshvsk/go-task-manager/services/task"
@@ -13,7 +13,7 @@ import (
 
 func TestGetColumns(t *testing.T) {
 	cr := column.InitColumnRepositoryMock()
-	expectedResult := []*models.Column{
+	expectedResult := []*domains.ColumnModel{
 		{
 			Id:   int64(rand.Int()),
 			Name: "Test",
@@ -27,7 +27,7 @@ func TestGetColumns(t *testing.T) {
 	expectedPage := int64(0)
 	expectedLimit := int64(2)
 
-	cr.FindAllByProjectFunc = func(projectId int64, offset int64, limit int64) ([]*models.Column, error) {
+	cr.FindAllByProjectFunc = func(projectId int64, offset int64, limit int64) ([]*domains.ColumnModel, error) {
 		assert.Equal(t, expectedProjectId, projectId)
 		assert.Equal(t, expectedPage, offset)
 		assert.Equal(t, expectedLimit, limit)
@@ -43,13 +43,13 @@ func TestGetColumns(t *testing.T) {
 
 func TestGetColumn(t *testing.T) {
 	cr := column.InitColumnRepositoryMock()
-	expectedResult := &models.Column{
+	expectedResult := &domains.ColumnModel{
 		Id:   int64(rand.Int()),
 		Name: "Test",
 	}
 	expectedProjectId := int64(100)
 
-	cr.FindFunc = func(projectId int64) (*models.Column, error) {
+	cr.FindFunc = func(projectId int64) (*domains.ColumnModel, error) {
 		assert.Equal(t, expectedProjectId, projectId)
 		return expectedResult, nil
 	}
@@ -66,21 +66,21 @@ func TestStoreFirstColumn(t *testing.T) {
 	expectedProjectId := int64(100)
 	expectedPosition := int64(0)
 	expectedId := int64(200)
-	model := &models.Column{
+	model := &domains.ColumnModel{
 		Name:      "Test",
 		ProjectId: expectedProjectId,
 	}
 
-	cr.FindAllByProjectAndNameFunc = func(projectId int64, name string) ([]*models.Column, error) {
+	cr.FindAllByProjectAndNameFunc = func(projectId int64, name string) ([]*domains.ColumnModel, error) {
 		assert.Equal(t, expectedProjectId, projectId)
 		assert.Equal(t, model.Name, name)
 		return nil, nil
 	}
-	cr.FindWithMaxPositionFunc = func(projectId int64) (*models.Column, error) {
+	cr.FindWithMaxPositionFunc = func(projectId int64) (*domains.ColumnModel, error) {
 		assert.Equal(t, expectedProjectId, projectId)
 		return nil, nil
 	}
-	cr.CreateFunc = func(c *models.Column) error {
+	cr.CreateFunc = func(c *domains.ColumnModel) error {
 		model.Id = expectedId
 		return nil
 	}
@@ -98,23 +98,23 @@ func TestStoreColumnAppendedPosition(t *testing.T) {
 	cr := column.InitColumnRepositoryMock()
 	expectedProjectId := int64(100)
 	expectedPosition := int64(100)
-	model := &models.Column{
+	model := &domains.ColumnModel{
 		Name:      "Test",
 		ProjectId: expectedProjectId,
 	}
 
-	cr.FindAllByProjectAndNameFunc = func(projectId int64, name string) ([]*models.Column, error) {
+	cr.FindAllByProjectAndNameFunc = func(projectId int64, name string) ([]*domains.ColumnModel, error) {
 		return nil, nil
 	}
-	cr.FindWithMaxPositionFunc = func(projectId int64) (*models.Column, error) {
-		maxModel := &models.Column{
+	cr.FindWithMaxPositionFunc = func(projectId int64) (*domains.ColumnModel, error) {
+		maxModel := &domains.ColumnModel{
 			Name:      "Test",
 			ProjectId: expectedProjectId,
 			Position:  expectedPosition - 1,
 		}
 		return maxModel, nil
 	}
-	cr.CreateFunc = func(c *models.Column) error {
+	cr.CreateFunc = func(c *domains.ColumnModel) error {
 		return nil
 	}
 
@@ -132,7 +132,7 @@ func TestUpdateColumn(t *testing.T) {
 	expectedCreatedAt := time.Now()
 	expectedProjectId := int64(100)
 
-	expectedResult := &models.Column{
+	expectedResult := &domains.ColumnModel{
 		Id:        expectedId,
 		Name:      "Test2",
 		ProjectId: expectedProjectId,
@@ -140,15 +140,15 @@ func TestUpdateColumn(t *testing.T) {
 		CreatedAt: expectedCreatedAt,
 	}
 
-	updateModel := &models.Column{
+	updateModel := &domains.ColumnModel{
 		Id:   expectedId,
 		Name: "Test",
 	}
 
-	cr.FindFunc = func(projectId int64) (*models.Column, error) {
+	cr.FindFunc = func(projectId int64) (*domains.ColumnModel, error) {
 		return expectedResult, nil
 	}
-	cr.UpdateFunc = func(model *models.Column) error {
+	cr.UpdateFunc = func(model *domains.ColumnModel) error {
 		return nil
 	}
 
@@ -163,14 +163,14 @@ func TestUpdateColumn(t *testing.T) {
 
 func TestDeleteColumn(t *testing.T) {
 	cr := column.InitColumnRepositoryMock()
-	expectedResult := &models.Column{
+	expectedResult := &domains.ColumnModel{
 		Id:       int64(rand.Int()),
 		Name:     "Test",
 		Position: int64(rand.Int()),
 	}
 
-	cr.FindAllByProjectFunc = func(projectId int64, offset int64, limit int64) ([]*models.Column, error) {
-		res := []*models.Column{
+	cr.FindAllByProjectFunc = func(projectId int64, offset int64, limit int64) ([]*domains.ColumnModel, error) {
+		res := []*domains.ColumnModel{
 			{
 				Id: int64(rand.Int()),
 			},
@@ -181,12 +181,12 @@ func TestDeleteColumn(t *testing.T) {
 		return res, nil
 	}
 
-	cr.FindFunc = func(id int64) (*models.Column, error) {
+	cr.FindFunc = func(id int64) (*domains.ColumnModel, error) {
 		return expectedResult, nil
 	}
 
-	cr.FindByNextPositionFunc = func(projectId int64, position int64) (*models.Column, error) {
-		model := &models.Column{
+	cr.FindByNextPositionFunc = func(projectId int64, position int64) (*domains.ColumnModel, error) {
+		model := &domains.ColumnModel{
 			Id:       int64(rand.Int()),
 			Name:     "Test",
 			Position: position + 1,
@@ -200,7 +200,7 @@ func TestDeleteColumn(t *testing.T) {
 	}
 
 	tsMock := &task.ServiceMock{}
-	tsMock.MoveAllToColumnFunc = func(fromColumn *models.Column, toColumn *models.Column) error {
+	tsMock.MoveAllToColumnFunc = func(fromColumn *domains.ColumnModel, toColumn *domains.ColumnModel) error {
 		return nil
 	}
 	services.TaskService = tsMock
@@ -214,26 +214,26 @@ func TestDeleteColumn(t *testing.T) {
 func TestMoveColumnRight(t *testing.T) {
 	expectedId := int64(100)
 	expectedPosition := int64(200)
-	expectedResult := &models.Column{
+	expectedResult := &domains.ColumnModel{
 		Id:       expectedId,
 		Name:     "Test",
 		Position: expectedPosition,
 	}
 
 	cr := column.InitColumnRepositoryMock()
-	cr.FindFunc = func(id int64) (*models.Column, error) {
+	cr.FindFunc = func(id int64) (*domains.ColumnModel, error) {
 		return expectedResult, nil
 	}
 
-	nextExpectedResult := &models.Column{
+	nextExpectedResult := &domains.ColumnModel{
 		Id:       expectedId,
 		Name:     "Test",
 		Position: expectedPosition + 1,
 	}
-	cr.FindByNextPositionFunc = func(projectId int64, position int64) (*models.Column, error) {
+	cr.FindByNextPositionFunc = func(projectId int64, position int64) (*domains.ColumnModel, error) {
 		return nextExpectedResult, nil
 	}
-	cr.UpdateFunc = func(model *models.Column) error {
+	cr.UpdateFunc = func(model *domains.ColumnModel) error {
 		return nil
 	}
 

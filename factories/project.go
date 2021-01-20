@@ -1,12 +1,12 @@
 package factories
 
 import (
-	"github.com/mlshvsk/go-task-manager/models"
+	"github.com/mlshvsk/go-task-manager/domains"
 	"time"
 )
 
-func ProjectFactory(name string, description string) (models.Project, error) {
-	p := new(models.Project)
+func ProjectFactory(name string, description string) (domains.ProjectModel, error) {
+	p := new(domains.ProjectModel)
 
 	p.Name = name
 	p.Description = description

@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"github.com/mlshvsk/go-task-manager/http/helpers"
 	"github.com/mlshvsk/go-task-manager/http/routes"
-	"github.com/mlshvsk/go-task-manager/models"
+	"github.com/mlshvsk/go-task-manager/domains"
 	"github.com/mlshvsk/go-task-manager/services"
 	"github.com/mlshvsk/go-task-manager/services/project"
 	"github.com/stretchr/testify/assert"
@@ -17,8 +17,8 @@ import (
 
 func TestGetProjectById(t *testing.T) {
 	InitLoggers(t)
-	expectedProject := &models.Project{Id: 1, Name: "Test", Description: "Deesc", CreatedAt: time.Now()}
-	f := func(columnId int64) (*models.Project, error) {
+	expectedProject := &domains.ProjectModel{Id: 1, Name: "Test", Description: "Deesc", CreatedAt: time.Now()}
+	f := func(columnId int64) (*domains.ProjectModel, error) {
 		return expectedProject, nil
 	}
 	services.ProjectService = &project.ServiceMock{GetProjectFunc: f}
@@ -41,10 +41,10 @@ func TestGetProjectById(t *testing.T) {
 
 func TestGetProjects(t *testing.T) {
 	InitLoggers(t)
-	expectedProjects := make([]*models.Project, 2)
-	expectedProjects[0] = &models.Project{Id: 1, Name: "Test"}
-	expectedProjects[1] = &models.Project{Id: 2, Name: "Test2"}
-	f := func(page int64, limit int64) ([]*models.Project, error) {
+	expectedProjects := make([]*domains.ProjectModel, 2)
+	expectedProjects[0] = &domains.ProjectModel{Id: 1, Name: "Test"}
+	expectedProjects[1] = &domains.ProjectModel{Id: 2, Name: "Test2"}
+	f := func(page int64, limit int64) ([]*domains.ProjectModel, error) {
 		assert.Equal(t, int64(2), page)
 		assert.Equal(t, int64(10), limit)
 		return expectedProjects, nil
@@ -72,14 +72,14 @@ func TestPostProject(t *testing.T) {
 	expectedTime := time.Now()
 	expectedId := int64(100)
 	expectedName := "Test"
-	postComment := &models.Project{Name: expectedName}
-	expectedProject := &models.Project{
+	postComment := &domains.ProjectModel{Name: expectedName}
+	expectedProject := &domains.ProjectModel{
 		Id:        expectedId,
 		Name:      expectedName,
 		CreatedAt: expectedTime,
 	}
 
-	f := func(c *models.Project) error {
+	f := func(c *domains.ProjectModel) error {
 		c.Id = expectedId
 		c.CreatedAt = expectedTime
 		return nil
@@ -108,14 +108,14 @@ func TestPostProject(t *testing.T) {
 func TestUpdateProject(t *testing.T) {
 	InitLoggers(t)
 	expectedName := "Test"
-	postProject := &models.Project{Name: expectedName}
-	expectedProject := &models.Project{
+	postProject := &domains.ProjectModel{Name: expectedName}
+	expectedProject := &domains.ProjectModel{
 		Id:        int64(100),
 		Name:      expectedName,
 		CreatedAt: time.Now(),
 	}
 
-	f := func(c *models.Project) error {
+	f := func(c *domains.ProjectModel) error {
 		*c = *expectedProject
 		return nil
 	}
