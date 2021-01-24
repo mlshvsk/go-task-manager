@@ -13,6 +13,11 @@ type columnService struct {
 	r domains.ColumnRepository
 }
 
+const (
+	directionRight = "right"
+	directionLeft = "left"
+)
+
 func InitColumnService(r domains.ColumnRepository) {
 	(&sync.Once{}).Do(func() {
 		services.ColumnService = &columnService{r}
@@ -104,7 +109,7 @@ func (s *columnService) MoveColumn(columnId int64, direction string) error {
 		return err
 	}
 
-	if direction == "right" {
+	if direction == directionRight {
 		nextColumn, err = s.r.FindByNextPosition(column.ProjectId, column.Position)
 		if err != nil {
 			return err
@@ -113,7 +118,7 @@ func (s *columnService) MoveColumn(columnId int64, direction string) error {
 		}
 
 		nextColumn.Position, column.Position = column.Position, nextColumn.Position
-	} else if direction == "left" {
+	} else if direction == directionLeft {
 		nextColumn, err = s.r.FindByPreviousPosition(column.ProjectId, column.Position)
 		if err != nil {
 			return err

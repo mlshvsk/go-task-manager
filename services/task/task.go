@@ -12,6 +12,11 @@ type taskService struct {
 	r domains.TaskRepository
 }
 
+const (
+	directionUp = "up"
+	directionDown = "down"
+)
+
 func InitTaskService(r domains.TaskRepository) {
 	(&sync.Once{}).Do(func() {
 		services.TaskService = &taskService{r}
@@ -78,7 +83,7 @@ func (s *taskService) MoveTaskWithinColumn(taskId int64, direction string) error
 		return err
 	}
 
-	if direction == "down" {
+	if direction == directionDown {
 		nextTask, err = s.r.FindByNextPosition(task.ColumnId, task.Position)
 		if err != nil {
 			return err
@@ -89,7 +94,7 @@ func (s *taskService) MoveTaskWithinColumn(taskId int64, direction string) error
 		}
 
 		nextTask.Position, task.Position = task.Position, nextTask.Position
-	} else if direction == "up" {
+	} else if direction == directionUp {
 		nextTask, err = s.r.FindByPreviousPosition(task.ColumnId, task.Position)
 		if err != nil {
 			return err
