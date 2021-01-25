@@ -18,6 +18,10 @@ func InitCommentService(r domains.CommentRepository) {
 }
 
 func (s *commentService) GetCommentsByTask(taskId int64, page int64, limit int64) ([]*domains.CommentModel, error) {
+	if _, err := services.TaskService.GetTask(taskId); err != nil {
+		return nil, err
+	}
+
 	return s.r.FindAllByTask(taskId, page, limit)
 }
 

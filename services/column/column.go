@@ -25,6 +25,10 @@ func InitColumnService(r domains.ColumnRepository) {
 }
 
 func (s *columnService) GetColumns(projectId int64, page int64, limit int64) ([]*domains.ColumnModel, error) {
+	if _, err := services.ProjectService.GetProject(projectId); err != nil {
+		return nil, err
+	}
+
 	return s.r.FindAllByProject(projectId, page, limit)
 }
 

@@ -24,6 +24,10 @@ func InitTaskService(r domains.TaskRepository) {
 }
 
 func (s *taskService) GetTasksByColumn(columnId int64, page int64, limit int64) ([]*domains.TaskModel, error) {
+	if _, err := services.ColumnService.GetColumn(columnId); err != nil {
+		return nil, err
+	}
+
 	return s.r.FindAllByColumn(columnId, page, limit)
 }
 
