@@ -84,7 +84,7 @@ func (s *columnService) DeleteColumn(columnId int64) error {
 	if err != nil {
 		return err
 	} else if columns == nil || len(columns) <= 1 {
-		return errors.New("cannot delete last column")
+		return &customErrors.LastModelDeletion{}
 	}
 
 	nextColumn, err := s.r.FindByNextPosition(column.ProjectId, column.Position)
