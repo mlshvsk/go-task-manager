@@ -23,6 +23,10 @@ func IndexColumns(rw http.ResponseWriter, req *http.Request) *handlers.AppError 
 
 	columns, err := services.ColumnService.GetColumns(projectId, page, limit)
 	if err != nil {
+		if _, ok := err.(*customErrors.NotFoundError); ok == true {
+			return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
+		}
+
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 

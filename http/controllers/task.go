@@ -22,6 +22,10 @@ func IndexTasksByColumn(rw http.ResponseWriter, req *http.Request) *handlers.App
 
 	tasks, err := services.TaskService.GetTasksByColumn(columnId, page, limit)
 	if err != nil {
+		if _, ok := err.(*customErrors.NotFoundError); ok == true {
+			return &handlers.AppError{Error: err, ResponseCode: http.StatusNotFound}
+		}
+
 		return &handlers.AppError{Error: err, ResponseCode: http.StatusInternalServerError}
 	}
 
