@@ -142,6 +142,8 @@ func (s *taskService) MoveTaskToColumn(taskId int64, toColumnId int64) error {
 		task.Position = 0
 	}
 
+	task.ColumnId = toColumnId
+
 	return s.r.Update(task)
 }
 
